@@ -14,7 +14,6 @@ interface SnippetPageProps {
 export default async function SnippetPage({ params }: SnippetPageProps) {
   const { id } = await params
   
-  // Fetch snippet from database
   const snippet = await prisma.snippet.findUnique({
     where: { id },
     include: {
@@ -36,7 +35,6 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
     },
   })
 
-  // If snippet doesn't exist, show 404
   if (!snippet) {
     notFound()
   }
@@ -47,7 +45,6 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-4">{snippet.title}</h1>
         
-        {/* Author Info */}
         <div className="flex items-center gap-3 mb-4">
           <Avatar>
             <AvatarImage src={snippet.author.image || ""} />
@@ -65,7 +62,6 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
           </div>
         </div>
 
-        {/* Tags and Language */}
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge variant="outline">{snippet.language}</Badge>
           {snippet.tags.map((tag: string) => (
@@ -75,12 +71,10 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
           ))}
         </div>
 
-        {/* Description */}
         {snippet.description && (
           <p className="text-muted-foreground mb-4">{snippet.description}</p>
         )}
 
-        {/* Stats */}
         <div className="flex gap-4 text-sm text-muted-foreground">
           <span>❤️ {snippet._count.likes} likes</span>
           <span>💬 {snippet._count.comments} comments</span>
@@ -88,7 +82,6 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
         </div>
       </div>
 
-      {/* Code Block */}
       <Card className="p-4">
         <pre className="overflow-x-auto">
           <code className="text-sm font-mono">{snippet.code}</code>
