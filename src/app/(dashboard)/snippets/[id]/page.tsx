@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/db/prisma"
 import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { formatDistanceToNow } from "date-fns"
+import { CodeBlock } from "@/components/shared/code-block"
+import { SnippetActions } from "@/components/features/snippet-actions"
+import { getCurrentUser } from "@/lib/auth/current-user"
 
 interface SnippetPageProps {
   params: Promise<{
@@ -13,6 +15,7 @@ interface SnippetPageProps {
 
 export default async function SnippetPage({ params }: SnippetPageProps) {
   const { id } = await params
+  const currentUserData = await getCurrentUser()
   
   const snippet = await prisma.snippet.findUnique({
     where: { id },
@@ -39,11 +42,16 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
     notFound()
   }
 
+  const isAuthor = currentUserData?.id === snippet.authorId
+
   return (
     <div className="container max-w-5xl mx-auto py-8 px-4">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4">{snippet.title}</h1>
+        <div className="flex items-start justify-between mb-4">
+          <h1 className="text-3xl font-bold flex-1">{snippet.title}</h1>
+          <SnippetActions snippetId={snippet.id} isAuthor={isAuthor} />
+        </div>
         
         <div className="flex items-center gap-3 mb-4">
           <Avatar>
@@ -82,11 +90,7 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
         </div>
       </div>
 
-      <Card className="p-4">
-        <pre className="overflow-x-auto">
-          <code className="text-sm font-mono">{snippet.code}</code>
-        </pre>
-      </Card>
+      <CodeBlock code={snippet.code} language={snippet.language} />
     </div>
   )
 }

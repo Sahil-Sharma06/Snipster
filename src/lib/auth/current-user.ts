@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma'
 /**
  * Get the current authenticated user from the database
  * Returns null if not authenticated or user not found in database
+ * If user is authenticated but not in DB, creates the user record
  */
 export async function getCurrentUser() {
   const { userId } = await auth()
@@ -12,9 +13,34 @@ export async function getCurrentUser() {
     return null
   }
 
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { clerkId: userId },
   })
+
+  // If user doesn't exist in DB, create from Clerk data
+  if (!user) {
+    try {
+      const clerkUser = await currentUser()
+      
+      if (clerkUser) {
+        const email = clerkUser.emailAddresses[0]?.emailAddress
+        const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null
+
+        user = await prisma.user.create({
+          data: {
+            clerkId: userId,
+            email: email || '',
+            name: name,
+            image: clerkUser.imageUrl,
+            username: clerkUser.username || null,
+          },
+        })
+      }
+    } catch (error) {
+      console.error('Error creating user from Clerk data:', error)
+      return null
+    }
+  }
 
   return user
 }

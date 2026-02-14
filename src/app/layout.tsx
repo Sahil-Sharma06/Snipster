@@ -1,4 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs'
+import './globals.css'
 
 export default function RootLayout({
   children,
@@ -7,8 +8,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body>
+      <html lang="en" suppressHydrationWarning>
+        <body className="antialiased">
           {children}
         </body>
       </html>

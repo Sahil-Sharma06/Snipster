@@ -132,15 +132,29 @@ export async function POST(request: Request) {
       )
     }
 
-    const user = await prisma.user.findUnique({
+    // Try to find user, if not found, create from Clerk data
+    let user = await prisma.user.findUnique({
       where: { clerkId: userId },
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found. Please try logging in again." },
-        { status: 404 }
-      )
+      // Get Clerk user data and create database record
+      const { clerkClient } = await import('@clerk/nextjs/server')
+      const client = await clerkClient()
+      const clerkUser = await client.users.getUser(userId)
+      
+      const email = clerkUser.emailAddresses[0]?.emailAddress
+      const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null
+
+      user = await prisma.user.create({
+        data: {
+          clerkId: userId,
+          email: email,
+          name: name,
+          image: clerkUser.imageUrl,
+          username: clerkUser.username || null,
+        },
+      })
     }
 
     const body = await request.json()
