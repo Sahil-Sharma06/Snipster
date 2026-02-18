@@ -1,5 +1,12 @@
-import { ClerkProvider } from '@clerk/nextjs'
-import './globals.css'
+import { ClerkProvider } from "@clerk/nextjs"
+import { ThemeProvider } from "@/components/providers/theme-provider"
+import "./globals.css"
+
+export const metadata = {
+  title: "Snipster — Code Snippet Manager",
+  description:
+    "Save, organize, and share your code snippets with the community.",
+}
 
 export default function RootLayout({
   children,
@@ -10,7 +17,14 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className="antialiased">
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
