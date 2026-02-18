@@ -1,130 +1,174 @@
 import { prisma } from "@/lib/db/prisma"
+import { getCurrentUser } from "@/lib/auth/current-user"
+import { SnippetCard } from "@/components/shared/snippet-card"
+import { SearchFilter } from "@/components/features/search-filter"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { formatDistanceToNow } from "date-fns"
+import { Code2, Heart, Users, FolderOpen } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Suspense } from "react"
 
-export default async function FeedPage() {
-  const snippets = await prisma.snippet.findMany({
-    where: {
-      isPublic: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 50,
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: true,
+interface FeedPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function FeedPage({ searchParams }: FeedPageProps) {
+  const params = await searchParams
+  const search = typeof params.search === "string" ? params.search : ""
+  const language = typeof params.language === "string" ? params.language : ""
+
+  const currentUserData = await getCurrentUser()
+
+  const where: Record<string, unknown> = { isPublic: true }
+
+  if (language) {
+    where.language = language
+  }
+
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ]
+  }
+
+  const [snippets, userStats] = await Promise.all([
+    prisma.snippet.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            bookmarks: true,
+          },
         },
       },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          bookmarks: true,
+    }),
+    currentUserData
+      ? prisma.user.findUnique({
+          where: { id: currentUserData.id },
+          select: {
+            _count: {
+              select: {
+                snippets: true,
+                collections: true,
+                followers: true,
+                likes: true,
+              },
+            },
+          },
+        })
+      : null,
+  ])
+
+  const stats = userStats
+    ? [
+        {
+          label: "Snippets",
+          value: userStats._count.snippets,
+          icon: Code2,
+          color: "text-blue-500",
+          bg: "bg-blue-500/10",
         },
-      },
-    },
-  })
+        {
+          label: "Collections",
+          value: userStats._count.collections,
+          icon: FolderOpen,
+          color: "text-violet-500",
+          bg: "bg-violet-500/10",
+        },
+        {
+          label: "Followers",
+          value: userStats._count.followers,
+          icon: Users,
+          color: "text-emerald-500",
+          bg: "bg-emerald-500/10",
+        },
+        {
+          label: "Likes Given",
+          value: userStats._count.likes,
+          icon: Heart,
+          color: "text-rose-500",
+          bg: "bg-rose-500/10",
+        },
+      ]
+    : []
 
   return (
-    <div className="container max-w-7xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Snippet Feed</h1>
-        <p className="text-muted-foreground">
-          Browse and discover code snippets from the community
-        </p>
+    <div className="space-y-8">
+      {/* Stats Cards */}
+      {stats.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <Card
+              key={stat.label}
+              className="flex items-center gap-3 p-4 border-border/60"
+            >
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}
+              >
+                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold leading-none">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stat.label}
+                </p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Search & Filter */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold">Explore Snippets</h1>
+            <p className="text-sm text-muted-foreground">
+              Discover code snippets from the community
+            </p>
+          </div>
+          <Link href="/snippets/new" className="hidden sm:block">
+            <Button size="sm">New Snippet</Button>
+          </Link>
+        </div>
+        <Suspense>
+          <SearchFilter />
+        </Suspense>
       </div>
 
+      {/* Snippet Grid */}
       {snippets.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg mb-4">
-            No snippets found. Be the first to create one!
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+          <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
+          <p className="text-muted-foreground mb-2">No snippets found</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            {search || language
+              ? "Try adjusting your search or filters"
+              : "Be the first to create one!"}
           </p>
-          <Link
-            href="/snippets/new"
-            className="text-primary hover:underline font-medium"
-          >
-            Create a snippet →
+          <Link href="/snippets/new">
+            <Button size="sm" variant="outline">
+              Create a snippet
+            </Button>
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {snippets.map((snippet) => (
-            <Link key={snippet.id} href={`/snippets/${snippet.id}`}>
-              <Card className="p-6 h-full hover:shadow-lg transition-shadow cursor-pointer">
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={snippet.author.image || ""} />
-                    <AvatarFallback>
-                      {snippet.author.name?.charAt(0) ||
-                        snippet.author.username?.charAt(0) ||
-                        "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {snippet.author.name || snippet.author.username}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(snippet.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Title */}
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                  {snippet.title}
-                </h3>
-
-                {/* Description */}
-                {snippet.description && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {snippet.description}
-                  </p>
-                )}
-
-                {/* Code Preview */}
-                <div className="bg-muted rounded-md p-3 mb-4 overflow-hidden">
-                  <pre className="text-xs font-mono line-clamp-3">
-                    <code>{snippet.code}</code>
-                  </pre>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="outline" className="text-xs">
-                    {snippet.language}
-                  </Badge>
-                  {snippet.tags.slice(0, 2).map((tag: string) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {snippet.tags.length > 2 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{snippet.tags.length - 2}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Stats */}
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span>❤️ {snippet._count.likes}</span>
-                  <span>💬 {snippet._count.comments}</span>
-                  <span>🔖 {snippet._count.bookmarks}</span>
-                </div>
-              </Card>
-            </Link>
+            <SnippetCard key={snippet.id} snippet={snippet} />
           ))}
         </div>
       )}
