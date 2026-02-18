@@ -25,16 +25,40 @@ export async function getCurrentUser() {
       if (clerkUser) {
         const email = clerkUser.emailAddresses[0]?.emailAddress
         const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null
+        let username = clerkUser.username || null
 
-        user = await prisma.user.create({
-          data: {
-            clerkId: userId,
-            email: email || '',
-            name: name,
-            image: clerkUser.imageUrl,
-            username: clerkUser.username || null,
-          },
-        })
+        // Try creating user with username first
+        try {
+          user = await prisma.user.create({
+            data: {
+              clerkId: userId,
+              email: email || '',
+              name: name,
+              image: clerkUser.imageUrl,
+              username: username,
+            },
+          })
+        } catch (createError: any) {
+          // If username constraint fails, try with a unique username or without it
+          if (createError.code === 'P2002' && createError.meta?.target?.includes('username')) {
+            // Generate unique username by appending timestamp
+            const uniqueUsername = username 
+              ? `${username}_${Date.now().toString().slice(-6)}`
+              : `user_${userId.slice(-8)}`
+            
+            user = await prisma.user.create({
+              data: {
+                clerkId: userId,
+                email: email || '',
+                name: name,
+                image: clerkUser.imageUrl,
+                username: uniqueUsername,
+              },
+            })
+          } else {
+            throw createError
+          }
+        }
       }
     } catch (error) {
       console.error('Error creating user from Clerk data:', error)

@@ -48,16 +48,42 @@ export async function POST(req: Request) {
 
     const email = email_addresses[0]?.email_address
     const name = [first_name, last_name].filter(Boolean).join(' ') || null
+    let userName = username || null
 
-    await prisma.user.create({
-      data: {
-        clerkId: id,
-        email: email,
-        name: name,
-        image: image_url,
-        username: username || null,
-      },
-    })
+    try {
+      await prisma.user.create({
+        data: {
+          clerkId: id,
+          email: email,
+          name: name,
+          image: image_url,
+          username: userName,
+        },
+      })
+    } catch (error: any) {
+      // Handle username uniqueness constraint error
+      if (error.code === 'P2002' && error.meta?.target?.includes('username')) {
+        // Generate unique username by appending timestamp
+        const uniqueUsername = userName 
+          ? `${userName}_${Date.now().toString().slice(-6)}`
+          : `user_${id.slice(-8)}`
+        
+        await prisma.user.create({
+          data: {
+            clerkId: id,
+            email: email,
+            name: name,
+            image: image_url,
+            username: uniqueUsername,
+          },
+        })
+      } else if (error.code === 'P2002' && error.meta?.target?.includes('clerkId')) {
+        // User already exists, skip creation
+        console.log(`User with clerkId ${id} already exists`)
+      } else {
+        throw error
+      }
+    }
   }
 
   if (eventType === 'user.updated') {
@@ -65,25 +91,60 @@ export async function POST(req: Request) {
 
     const email = email_addresses[0]?.email_address
     const name = [first_name, last_name].filter(Boolean).join(' ') || null
+    let userName = username || null
 
-    await prisma.user.update({
-      where: { clerkId: id },
-      data: {
-        email: email,
-        name: name,
-        image: image_url,
-        username: username || null,
-      },
-    })
+    try {
+      await prisma.user.update({
+        where: { clerkId: id },
+        data: {
+          email: email,
+          name: name,
+          image: image_url,
+          username: userName,
+        },
+      })
+    } catch (error: any) {
+      // Handle username uniqueness constraint error on update
+      if (error.code === 'P2002' && error.meta?.target?.includes('username')) {
+        // Generate unique username by appending timestamp
+        const uniqueUsername = userName 
+          ? `${userName}_${Date.now().toString().slice(-6)}`
+          : `user_${id.slice(-8)}`
+        
+        await prisma.user.update({
+          where: { clerkId: id },
+          data: {
+            email: email,
+            name: name,
+            image: image_url,
+            username: uniqueUsername,
+          },
+        })
+      } else if (error.code === 'P2025') {
+        // User doesn't exist, log and skip
+        console.log(`User with clerkId ${id} not found for update`)
+      } else {
+        throw error
+      }
+    }
   }
 
   if (eventType === 'user.deleted') {
     const { id } = evt.data
 
     if (id) {
-      await prisma.user.delete({
-        where: { clerkId: id },
-      })
+      try {
+        await prisma.user.delete({
+          where: { clerkId: id },
+        })
+      } catch (error: any) {
+        // Handle case where user doesn't exist
+        if (error.code === 'P2025') {
+          console.log(`User with clerkId ${id} not found for deletion`)
+        } else {
+          throw error
+        }
+      }
     }
   }
 
