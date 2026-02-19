@@ -13,16 +13,29 @@ import { Loader2, X, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { RichTextEditor } from "@/components/shared/rich-text-editor"
 
-export function CreateBlogForm() {
+interface EditBlogFormProps {
+  blog: {
+    id: string
+    slug: string
+    title: string
+    excerpt: string | null
+    content: string
+    coverImage: string | null
+    tags: string[]
+    published: boolean
+  }
+}
+
+export function EditBlogForm({ blog }: EditBlogFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [title, setTitle] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [content, setContent] = useState("")
-  const [coverImage, setCoverImage] = useState("")
-  const [tags, setTags] = useState<string[]>([])
+  const [title, setTitle] = useState(blog.title)
+  const [excerpt, setExcerpt] = useState(blog.excerpt || "")
+  const [content, setContent] = useState(blog.content)
+  const [coverImage, setCoverImage] = useState(blog.coverImage || "")
+  const [tags, setTags] = useState<string[]>(blog.tags)
   const [tagInput, setTagInput] = useState("")
-  const [published, setPublished] = useState(false)
+  const [published, setPublished] = useState(blog.published)
 
   const addTag = () => {
     const trimmed = tagInput.trim().toLowerCase()
@@ -51,8 +64,8 @@ export function CreateBlogForm() {
 
     setIsSubmitting(true)
     try {
-      const res = await fetch("/api/blogs", {
-        method: "POST",
+      const res = await fetch(`/api/blogs/${blog.slug}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -66,16 +79,16 @@ export function CreateBlogForm() {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Failed to create blog post")
+        throw new Error(data.error || "Failed to update blog post")
       }
 
-      const blog = await res.json()
-      toast.success(published ? "Blog post published!" : "Draft saved!")
-      router.push(`/blogs/${blog.slug}`)
+      const updatedBlog = await res.json()
+      toast.success("Blog post updated successfully!")
+      router.push(`/blogs/${updatedBlog.slug}`)
       router.refresh()
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create blog post"
+        err instanceof Error ? err.message : "Failed to update blog post"
       )
     } finally {
       setIsSubmitting(false)
@@ -191,7 +204,7 @@ export function CreateBlogForm() {
           disabled={isSubmitting}
         />
         <Label htmlFor="published" className="font-normal">
-          Publish immediately (uncheck to save as draft)
+          Published (uncheck to save as draft)
         </Label>
       </div>
 
@@ -228,10 +241,10 @@ export function CreateBlogForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {published ? "Publishing..." : "Saving..."}
+              Updating...
             </>
           ) : (
-            <>{published ? "Publish Post" : "Save Draft"}</>
+            <>Update Post</>
           )}
         </Button>
       </div>

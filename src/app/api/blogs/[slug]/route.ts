@@ -86,6 +86,29 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const updateData: any = { ...data }
 
+    // Regenerate slug if title changes
+    if (data.title && data.title !== blog.title) {
+      let newSlug = data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .substring(0, 100)
+
+      // Ensure slug is unique
+      let slugExists = await prisma.blog.findUnique({
+        where: { slug: newSlug },
+      })
+      let counter = 1
+      while (slugExists && slugExists.id !== blog.id) {
+        newSlug = `${newSlug}-${counter}`
+        slugExists = await prisma.blog.findUnique({
+          where: { slug: newSlug },
+        })
+        counter++
+      }
+      updateData.slug = newSlug
+    }
+
     if (data.published && !blog.published) {
       updateData.publishedAt = new Date()
     }
