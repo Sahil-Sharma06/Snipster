@@ -1,16 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
-import { z } from "zod"
-
-const updateBlogSchema = z.object({
-  title: z.string().min(3).max(200).optional(),
-  excerpt: z.string().max(500).optional(),
-  content: z.string().min(1).optional(),
-  coverImage: z.string().url().optional().or(z.literal("")),
-  tags: z.array(z.string().max(30)).max(10).optional(),
-  published: z.boolean().optional(),
-})
+import { ZodError } from "zod"
+import { updateBlogSchema } from "@/lib/validations/blog"
 
 interface RouteContext {
   params: Promise<{ slug: string }>
@@ -137,7 +129,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json(updatedBlog)
   } catch (error) {
     console.error("Error updating blog:", error)
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: error.issues[0]?.message || "Invalid input" },
         { status: 400 }

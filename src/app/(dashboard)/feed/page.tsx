@@ -8,6 +8,7 @@ import { Code2, Heart, Users, FolderOpen } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
+import { FeedTabs } from "@/components/features/feed-tabs"
 
 const PAGE_SIZE = 18
 
@@ -20,28 +21,38 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const search = typeof params.search === "string" ? params.search : ""
   const language = typeof params.language === "string" ? params.language : ""
   const tag = typeof params.tag === "string" ? params.tag : ""
+  const tab = typeof params.tab === "string" ? params.tab : "everyone"
   const pageParam =
     typeof params.page === "string" ? parseInt(params.page, 10) : 1
   const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam
 
   const currentUserData = await getCurrentUser()
+  const isFollowingTab = tab === "following" && !!currentUserData
 
-  const where: Record<string, unknown> = { isPublic: true }
+  // Build base where clause
+  const baseWhere: Record<string, unknown> = { isPublic: true }
 
-  if (language) {
-    where.language = language
-  }
-
-  if (tag) {
-    where.tags = { has: tag }
-  }
-
+  if (language) baseWhere.language = language
+  if (tag) baseWhere.tags = { has: tag }
   if (search) {
-    where.OR = [
+    baseWhere.OR = [
       { title: { contains: search, mode: "insensitive" } },
       { description: { contains: search, mode: "insensitive" } },
     ]
   }
+
+  // For the following tab, narrow snippets to users the current user follows
+  let followingIds: string[] = []
+  if (isFollowingTab) {
+    const follows = await prisma.follow.findMany({
+      where: { followerId: currentUserData!.id },
+      select: { followingId: true },
+    })
+    followingIds = follows.map((f) => f.followingId)
+    baseWhere.authorId = { in: followingIds }
+  }
+
+  const where = baseWhere
 
   const [snippets, totalCount, userStats, popularTagsRaw] = await Promise.all([
     prisma.snippet.findMany({
@@ -178,6 +189,16 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             <Button size="sm">New Snippet</Button>
           </Link>
         </div>
+
+        {/* Feed Tabs */}
+        {currentUserData && (
+          <div className="mb-4">
+            <Suspense>
+              <FeedTabs activeTab={tab} />
+            </Suspense>
+          </div>
+        )}
+
         <Suspense>
           <SearchFilter availableTags={popularTags} />
         </Suspense>
@@ -189,15 +210,21 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
           <p className="text-muted-foreground mb-2">No snippets found</p>
           <p className="text-sm text-muted-foreground mb-4">
-            {search || language || tag
+            {isFollowingTab
+              ? followingIds.length === 0
+                ? "Follow some users to see their snippets here"
+                : "People you follow haven't posted any public snippets yet"
+              : search || language || tag
               ? "Try adjusting your search or filters"
               : "Be the first to create one!"}
           </p>
-          <Link href="/snippets/new">
-            <Button size="sm" variant="outline">
-              Create a snippet
-            </Button>
-          </Link>
+          {!isFollowingTab && (
+            <Link href="/snippets/new">
+              <Button size="sm" variant="outline">
+                Create a snippet
+              </Button>
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-6">

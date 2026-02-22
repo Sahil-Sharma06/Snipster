@@ -9,6 +9,8 @@ interface PaginationProps {
   totalPages: number
   totalItems: number
   pageSize: number
+  basePath?: string
+  itemLabel?: string
 }
 
 export function Pagination({
@@ -16,6 +18,8 @@ export function Pagination({
   totalPages,
   totalItems,
   pageSize,
+  basePath = "/feed",
+  itemLabel = "snippets",
 }: PaginationProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -29,7 +33,7 @@ export function Pagination({
     } else {
       params.set("page", String(newPage))
     }
-    router.push(`/feed?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   const start = (page - 1) * pageSize + 1
@@ -56,7 +60,7 @@ export function Pagination({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/60">
       <p className="text-sm text-muted-foreground">
-        Showing {start}–{end} of {totalItems} snippets
+        Showing {start}–{end} of {totalItems} {itemLabel}
       </p>
       <div className="flex items-center gap-1">
         <Button

@@ -33,9 +33,17 @@ const TAG_SUGGESTIONS = [
 
 interface SearchFilterProps {
   availableTags?: string[]
+  basePath?: string
+  showLanguageFilter?: boolean
+  placeholder?: string
 }
 
-export function SearchFilter({ availableTags }: SearchFilterProps) {
+export function SearchFilter({
+  availableTags,
+  basePath = "/feed",
+  showLanguageFilter = true,
+  placeholder = "Search snippets by title or description...",
+}: SearchFilterProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [, startTransition] = useTransition()
@@ -55,10 +63,10 @@ export function SearchFilter({ availableTags }: SearchFilterProps) {
       }
       params.delete("page")
       startTransition(() => {
-        router.push(`/feed?${params.toString()}`)
+        router.push(`${basePath}?${params.toString()}`)
       })
     },
-    [router, searchParams]
+    [router, searchParams, basePath]
   )
 
   const handleSearch = (e: React.FormEvent) => {
@@ -77,7 +85,7 @@ export function SearchFilter({ availableTags }: SearchFilterProps) {
   const clearFilters = () => {
     setSearchValue("")
     startTransition(() => {
-      router.push("/feed")
+      router.push(basePath)
     })
   }
 
@@ -89,13 +97,14 @@ export function SearchFilter({ availableTags }: SearchFilterProps) {
       <form onSubmit={handleSearch} className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search snippets by title or description..."
+          placeholder={placeholder}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className="pl-10 h-11"
         />
       </form>
 
+      {showLanguageFilter && (
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-full sm:w-auto">
           Language:
@@ -111,6 +120,7 @@ export function SearchFilter({ availableTags }: SearchFilterProps) {
           </Badge>
         ))}
       </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-full sm:w-auto">

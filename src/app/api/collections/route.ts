@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
-import { z } from "zod"
-
-const createCollectionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
-  description: z.string().max(500).optional(),
-  isPublic: z.boolean().default(true),
-})
+import { createCollectionSchema } from "@/lib/validations/collection"
 
 export async function GET() {
   try {

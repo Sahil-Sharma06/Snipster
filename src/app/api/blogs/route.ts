@@ -1,16 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
-import { z } from "zod"
-
-const createBlogSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(200),
-  excerpt: z.string().max(500).optional(),
-  content: z.string().min(1, "Content is required"),
-  coverImage: z.string().url().optional().or(z.literal("")),
-  tags: z.array(z.string().max(30)).max(10),
-  published: z.boolean().default(false),
-})
+import { ZodError } from "zod"
+import { createBlogSchema } from "@/lib/validations/blog"
 
 function generateSlug(title: string): string {
   return title
@@ -114,7 +106,7 @@ export async function POST(request: Request) {
     return NextResponse.json(blog, { status: 201 })
   } catch (error) {
     console.error("Error creating blog:", error)
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: error.issues[0]?.message || "Invalid input" },
         { status: 400 }

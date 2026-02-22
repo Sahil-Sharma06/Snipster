@@ -42,6 +42,7 @@ model Snippet {
   language    String
   tags        String[]
   isPublic    Boolean  @default(true)
+  views       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -64,6 +65,7 @@ model Blog {
   coverImage  String?
   tags        String[]
   published   Boolean   @default(false)
+  views       Int       @default(0)
   readTime    Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

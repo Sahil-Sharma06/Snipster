@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator"
 const navigation = [
   { name: "Feed", href: "/feed", icon: Rss },
   { name: "My Snippets", href: "/my-snippets", icon: FileCode },
+  { name: "My Blogs", href: "/my-blogs", icon: FileText },
   { name: "Collections", href: "/collections", icon: FolderOpen },
   { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
   { name: "Blogs", href: "/blogs", icon: FileText },

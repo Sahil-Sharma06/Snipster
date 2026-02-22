@@ -7,14 +7,40 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDistanceToNow } from "date-fns"
 import { getCurrentUser } from "@/lib/auth/current-user"
-import { Calendar, Clock, Heart, Bookmark, Pencil, Trash2, Eye } from "lucide-react"
+import { Calendar, Clock, Eye, Pencil } from "lucide-react"
 import { LikeButton } from "@/components/features/like-button"
 import { BookmarkButton } from "@/components/features/bookmark-button"
 import { CommentSection } from "@/components/features/comment-section"
+import { ViewTracker } from "@/components/shared/view-tracker"
 import Link from "next/link"
 
 interface BlogPageProps {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: BlogPageProps) {
+  const { slug } = await params
+  const blog = await prisma.blog.findUnique({
+    where: { slug },
+    select: { title: true, excerpt: true, coverImage: true, author: { select: { name: true, username: true } } },
+  })
+  if (!blog) return { title: "Post not found" }
+  const author = blog.author.name || blog.author.username || "Unknown"
+  return {
+    title: `${blog.title} — ${author} | Snipster`,
+    description: blog.excerpt || `Read "${blog.title}" by ${author} on Snipster`,
+    openGraph: {
+      title: blog.title,
+      description: blog.excerpt || `Read "${blog.title}" by ${author} on Snipster`,
+      images: blog.coverImage ? [{ url: blog.coverImage }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description: blog.excerpt || `Read "${blog.title}" by ${author} on Snipster`,
+      images: blog.coverImage ? [blog.coverImage] : [],
+    },
+  }
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
@@ -80,6 +106,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 
   return (
     <div className="max-w-4xl space-y-6">
+      <ViewTracker endpoint={`/api/blogs/${blog.slug}/view`} />
       {/* Cover Image */}
       {blog.coverImage && (
         <div className="relative h-64 sm:h-80 w-full overflow-hidden rounded-lg">
@@ -135,6 +162,11 @@ export default async function BlogPage({ params }: BlogPageProps) {
                   <span>{blog.readTime} min read</span>
                 </>
               )}
+              <>
+                <span>•</span>
+                <Eye className="h-3 w-3" />
+                <span>{blog.views.toLocaleString()} views</span>
+              </>
               {!blog.published && (
                 <>
                   <span>•</span>

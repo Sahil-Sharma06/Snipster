@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
-import { z } from "zod"
+import { ZodError } from "zod"
+import { updateCollectionSchema } from "@/lib/validations/collection"
 
 interface RouteContext {
   params: Promise<{ id: string }>
 }
-
-const updateCollectionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100).optional(),
-  description: z.string().max(500).optional().nullable(),
-  isPublic: z.boolean().optional(),
-})
 
 // GET /api/collections/[id] — fetch collection + its snippets
 export async function GET(_req: Request, context: RouteContext) {
@@ -95,7 +90,7 @@ export async function PATCH(req: Request, context: RouteContext) {
     return NextResponse.json(updated)
   } catch (error) {
     console.error("Error updating collection:", error)
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json({ error: error.issues[0]?.message ?? "Invalid input" }, { status: 400 })
     }
     return NextResponse.json({ error: "Failed to update collection" }, { status: 500 })

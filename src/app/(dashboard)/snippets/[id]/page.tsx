@@ -9,11 +9,30 @@ import { SnippetActions } from "@/components/features/snippet-actions"
 import { LikeButton } from "@/components/features/like-button"
 import { BookmarkButton } from "@/components/features/bookmark-button"
 import { CommentSection } from "@/components/features/comment-section"
+import { ViewTracker } from "@/components/shared/view-tracker"
 import { getCurrentUser } from "@/lib/auth/current-user"
 import { Eye, Calendar } from "lucide-react"
 
 interface SnippetPageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: SnippetPageProps) {
+  const { id } = await params
+  const snippet = await prisma.snippet.findUnique({
+    where: { id },
+    select: { title: true, description: true, language: true, author: { select: { name: true, username: true } } },
+  })
+  if (!snippet) return { title: "Snippet not found" }
+  const author = snippet.author.name || snippet.author.username || "Unknown"
+  return {
+    title: `${snippet.title} — ${snippet.language} snippet by ${author} | Snipster`,
+    description: snippet.description || `A ${snippet.language} code snippet by ${author} on Snipster`,
+    openGraph: {
+      title: snippet.title,
+      description: snippet.description || `A ${snippet.language} snippet by ${author}`,
+    },
+  }
 }
 
 export default async function SnippetPage({ params }: SnippetPageProps) {
@@ -75,7 +94,7 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
 
   return (
     <div className="max-w-4xl space-y-6">
-      {/* Header */}
+      <ViewTracker endpoint={`/api/snippets/${snippet.id}/view`} />
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-2xl font-bold sm:text-3xl">{snippet.title}</h1>
@@ -107,6 +126,10 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
               ) : (
                 <span>Private</span>
               )}
+              <span className="flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                {snippet.views.toLocaleString()} views
+              </span>
             </div>
           </div>
         </div>
