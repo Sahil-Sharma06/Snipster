@@ -2,6 +2,8 @@ import { DashboardHeader } from "@/components/layouts/dashboard-header"
 import { DashboardNav } from "@/components/layouts/dashboard-nav"
 import { Toaster } from "@/components/ui/sonner"
 
+export const dynamic = "force-dynamic"
+
 export default function DashboardLayout({
   children,
 }: {
