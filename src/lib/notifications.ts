@@ -18,6 +18,20 @@ export async function createNotification(input: CreateNotificationInput) {
   if (input.userId === input.actorId) return
 
   try {
+    // Deduplicate: skip if an identical unread notification already exists
+    const existing = await prisma.notification.findFirst({
+      where: {
+        type: input.type,
+        userId: input.userId,
+        actorId: input.actorId,
+        snippetId: input.snippetId ?? null,
+        blogId: input.blogId ?? null,
+        read: false,
+      },
+    })
+
+    if (existing) return
+
     await prisma.notification.create({
       data: {
         type: input.type,

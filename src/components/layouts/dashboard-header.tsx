@@ -11,7 +11,7 @@ export function DashboardHeader() {
       <div className="container flex h-14 items-center gap-4 px-4">
         <MobileNav />
         <Link
-          href="/feed"
+          href="/dashboard"
           className="flex items-center gap-2 font-bold text-lg"
         >
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
+import { z } from "zod"
 import { prisma } from "@/lib/db/prisma"
 import { createCollectionSchema } from "@/lib/validations/collection"
 

@@ -5,38 +5,56 @@ import { SnippetCard } from "@/components/shared/snippet-card"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Pagination } from "@/components/shared/pagination"
 import { Code2, Plus, Lock, Globe } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { Suspense } from "react"
 
-export default async function MySnippetsPage() {
+const PAGE_SIZE = 12
+
+interface MySnippetsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function MySnippetsPage({ searchParams }: MySnippetsPageProps) {
   const user = await getCurrentUser()
   if (!user) redirect("/sign-in")
 
-  const snippets = await prisma.snippet.findMany({
-    where: { authorId: user.id },
-    orderBy: { createdAt: "desc" },
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: true,
-        },
-      },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          bookmarks: true,
-        },
-      },
-    },
-  })
+  const params = await searchParams
+  const pageParam = typeof params.page === "string" ? parseInt(params.page, 10) : 1
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam
 
-  const publicCount = snippets.filter((s) => s.isPublic).length
-  const privateCount = snippets.filter((s) => !s.isPublic).length
+  const [snippets, totalItems, publicCount, privateCount] = await Promise.all([
+    prisma.snippet.findMany({
+      where: { authorId: user.id },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+            bookmarks: true,
+          },
+        },
+      },
+    }),
+    prisma.snippet.count({ where: { authorId: user.id } }),
+    prisma.snippet.count({ where: { authorId: user.id, isPublic: true } }),
+    prisma.snippet.count({ where: { authorId: user.id, isPublic: false } }),
+  ])
+
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
 
   return (
     <div className="space-y-8">
@@ -59,7 +77,7 @@ export default async function MySnippetsPage() {
       <div className="flex gap-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Code2 className="h-4 w-4" />
-          {snippets.length} total
+          {totalItems} total
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
@@ -71,7 +89,7 @@ export default async function MySnippetsPage() {
         </div>
       </div>
 
-      {snippets.length === 0 ? (
+      {totalItems === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
           <p className="text-muted-foreground mb-2">
@@ -84,6 +102,7 @@ export default async function MySnippetsPage() {
           </Link>
         </div>
       ) : (
+        <>
         <div className="space-y-3">
           {snippets.map((snippet) => (
             <Link key={snippet.id} href={`/snippets/${snippet.id}`}>
@@ -135,6 +154,17 @@ export default async function MySnippetsPage() {
             </Link>
           ))}
         </div>
+        <Suspense fallback={null}>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={PAGE_SIZE}
+            basePath="/my-snippets"
+            itemLabel="snippets"
+          />
+        </Suspense>
+        </>
       )}
     </div>
   )

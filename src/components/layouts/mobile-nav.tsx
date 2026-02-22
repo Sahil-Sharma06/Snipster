@@ -16,6 +16,7 @@ import {
   Bookmark,
   Bell,
   Users,
+  LayoutDashboard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,6 +29,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 
 const navigation = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Feed", href: "/feed", icon: Rss },
   { name: "My Snippets", href: "/my-snippets", icon: FileCode },
   { name: "My Blogs", href: "/my-blogs", icon: FileText },
