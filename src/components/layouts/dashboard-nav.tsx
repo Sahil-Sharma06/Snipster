@@ -12,6 +12,7 @@ import {
   FileText,
   Bookmark,
   Bell,
+  Users,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -23,6 +24,7 @@ const navigation = [
   { name: "Collections", href: "/collections", icon: FolderOpen },
   { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
   { name: "Blogs", href: "/blogs", icon: FileText },
+  { name: "Discover", href: "/search", icon: Users },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profile", href: "/profile", icon: User },
 ]
