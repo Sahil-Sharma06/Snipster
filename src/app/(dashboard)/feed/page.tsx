@@ -2,11 +2,14 @@ import { prisma } from "@/lib/db/prisma"
 import { getCurrentUser } from "@/lib/auth/current-user"
 import { SnippetCard } from "@/components/shared/snippet-card"
 import { SearchFilter } from "@/components/features/search-filter"
+import { Pagination } from "@/components/shared/pagination"
 import { Card } from "@/components/ui/card"
 import { Code2, Heart, Users, FolderOpen } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
+
+const PAGE_SIZE = 18
 
 interface FeedPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -16,6 +19,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const params = await searchParams
   const search = typeof params.search === "string" ? params.search : ""
   const language = typeof params.language === "string" ? params.language : ""
+  const tag = typeof params.tag === "string" ? params.tag : ""
+  const pageParam =
+    typeof params.page === "string" ? parseInt(params.page, 10) : 1
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam
 
   const currentUserData = await getCurrentUser()
 
@@ -25,6 +32,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     where.language = language
   }
 
+  if (tag) {
+    where.tags = { has: tag }
+  }
+
   if (search) {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
@@ -32,11 +43,12 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     ]
   }
 
-  const [snippets, userStats] = await Promise.all([
+  const [snippets, totalCount, userStats, popularTagsRaw] = await Promise.all([
     prisma.snippet.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: 50,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       include: {
         author: {
           select: {
@@ -55,6 +67,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         },
       },
     }),
+    prisma.snippet.count({ where }),
     currentUserData
       ? prisma.user.findUnique({
           where: { id: currentUserData.id },
@@ -70,7 +83,28 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           },
         })
       : null,
+    // Collect tags from recent public snippets to populate the tag filter
+    prisma.snippet.findMany({
+      where: { isPublic: true },
+      select: { tags: true },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+    }),
   ])
+
+  // Build a frequency-sorted list of popular tags
+  const tagFrequency: Record<string, number> = {}
+  for (const s of popularTagsRaw) {
+    for (const t of s.tags) {
+      tagFrequency[t] = (tagFrequency[t] || 0) + 1
+    }
+  }
+  const popularTags = Object.entries(tagFrequency)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([t]) => t)
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   const stats = userStats
     ? [
@@ -145,7 +179,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           </Link>
         </div>
         <Suspense>
-          <SearchFilter />
+          <SearchFilter availableTags={popularTags} />
         </Suspense>
       </div>
 
@@ -155,7 +189,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
           <p className="text-muted-foreground mb-2">No snippets found</p>
           <p className="text-sm text-muted-foreground mb-4">
-            {search || language
+            {search || language || tag
               ? "Try adjusting your search or filters"
               : "Be the first to create one!"}
           </p>
@@ -166,10 +200,21 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {snippets.map((snippet) => (
-            <SnippetCard key={snippet.id} snippet={snippet} />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {snippets.map((snippet) => (
+              <SnippetCard key={snippet.id} snippet={snippet} />
+            ))}
+          </div>
+
+          <Suspense>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              totalItems={totalCount}
+              pageSize={PAGE_SIZE}
+            />
+          </Suspense>
         </div>
       )}
     </div>

@@ -1,53 +1,70 @@
 import { prisma } from "@/lib/db/prisma"
+import { notFound } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth/current-user"
-import { redirect } from "next/navigation"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { SnippetCard } from "@/components/shared/snippet-card"
 import {
   Code2,
   FolderOpen,
-  Heart,
   Users,
   UserPlus,
   Calendar,
   Globe,
   Github,
   Twitter,
-  Pencil,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
-export default async function ProfilePage() {
-  const user = await getCurrentUser()
-  if (!user) redirect("/sign-in")
+interface PublicProfilePageProps {
+  params: Promise<{ username: string }>
+}
 
-  const fullUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    include: {
-      _count: {
-        select: {
-          snippets: true,
-          collections: true,
-          followers: true,
-          following: true,
-          likes: true,
-          bookmarks: true,
+export async function generateMetadata({ params }: PublicProfilePageProps) {
+  const { username } = await params
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { name: true, username: true, bio: true },
+  })
+  if (!user) return { title: "User not found" }
+  return {
+    title: `${user.name || user.username} (@${user.username}) — Snipster`,
+    description: user.bio || `View ${user.name || user.username}'s public snippets on Snipster`,
+  }
+}
+
+export default async function PublicProfilePage({
+  params,
+}: PublicProfilePageProps) {
+  const { username } = await params
+
+  const [profileUser, currentUser] = await Promise.all([
+    prisma.user.findUnique({
+      where: { username },
+      include: {
+        _count: {
+          select: {
+            snippets: { where: { isPublic: true } },
+            collections: { where: { isPublic: true } },
+            followers: true,
+            following: true,
+          },
         },
       },
-    },
-  })
+    }),
+    getCurrentUser(),
+  ])
 
-  if (!fullUser) redirect("/sign-in")
+  if (!profileUser) notFound()
 
-  const recentSnippets = await prisma.snippet.findMany({
-    where: { authorId: user.id, isPublic: true },
+  // Don't show the public profile for the current user — redirect to /profile
+  // (handled via the nav, but we allow it here too)
+
+  const snippets = await prisma.snippet.findMany({
+    where: { authorId: profileUser.id, isPublic: true },
     orderBy: { createdAt: "desc" },
-    take: 6,
+    take: 12,
     include: {
       author: {
         select: {
@@ -67,31 +84,33 @@ export default async function ProfilePage() {
     },
   })
 
+  const isOwnProfile = currentUser?.id === profileUser.id
+
   const stats = [
     {
       label: "Snippets",
-      value: fullUser._count.snippets,
+      value: profileUser._count.snippets,
       icon: Code2,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
     },
     {
       label: "Collections",
-      value: fullUser._count.collections,
+      value: profileUser._count.collections,
       icon: FolderOpen,
       color: "text-violet-500",
       bg: "bg-violet-500/10",
     },
     {
       label: "Followers",
-      value: fullUser._count.followers,
+      value: profileUser._count.followers,
       icon: Users,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
     },
     {
       label: "Following",
-      value: fullUser._count.following,
+      value: profileUser._count.following,
       icon: UserPlus,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
@@ -104,44 +123,50 @@ export default async function ProfilePage() {
       <Card className="p-6 border-border/60">
         <div className="flex flex-col sm:flex-row items-start gap-6">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={fullUser.image || ""} />
+            <AvatarImage src={profileUser.image || ""} />
             <AvatarFallback className="text-2xl">
-              {fullUser.name?.charAt(0) ||
-                fullUser.username?.charAt(0) ||
+              {profileUser.name?.charAt(0) ||
+                profileUser.username?.charAt(0) ||
                 "?"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h1 className="text-2xl font-bold">
-                {fullUser.name || fullUser.username}
-              </h1>
-              <Link href="/profile/edit">
-                <Button variant="outline" size="sm" className="shrink-0">
-                  <Pencil className="mr-2 h-3.5 w-3.5" />
-                  Edit Profile
-                </Button>
-              </Link>
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {profileUser.name || profileUser.username}
+                </h1>
+                {profileUser.username && (
+                  <p className="text-muted-foreground">
+                    @{profileUser.username}
+                  </p>
+                )}
+              </div>
+              {isOwnProfile && (
+                <a
+                  href="/profile/edit"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Edit profile →
+                </a>
+              )}
             </div>
-            {fullUser.username && (
-              <p className="text-muted-foreground">@{fullUser.username}</p>
-            )}
-            {fullUser.bio && (
+            {profileUser.bio && (
               <p className="mt-2 text-sm text-muted-foreground">
-                {fullUser.bio}
+                {profileUser.bio}
               </p>
             )}
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />
                 Joined{" "}
-                {formatDistanceToNow(new Date(fullUser.createdAt), {
+                {formatDistanceToNow(new Date(profileUser.createdAt), {
                   addSuffix: true,
                 })}
               </span>
-              {fullUser.websiteUrl && (
+              {profileUser.websiteUrl && (
                 <a
-                  href={fullUser.websiteUrl}
+                  href={profileUser.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -150,9 +175,9 @@ export default async function ProfilePage() {
                   Website
                 </a>
               )}
-              {fullUser.githubUrl && (
+              {profileUser.githubUrl && (
                 <a
-                  href={fullUser.githubUrl}
+                  href={profileUser.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -161,9 +186,9 @@ export default async function ProfilePage() {
                   GitHub
                 </a>
               )}
-              {fullUser.twitterUrl && (
+              {profileUser.twitterUrl && (
                 <a
-                  href={fullUser.twitterUrl}
+                  href={profileUser.twitterUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -191,9 +216,7 @@ export default async function ProfilePage() {
             </div>
             <div className="min-w-0">
               <p className="text-2xl font-bold leading-none">{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stat.label}
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
             </div>
           </Card>
         ))}
@@ -201,24 +224,17 @@ export default async function ProfilePage() {
 
       <Separator />
 
-      {/* Recent Public Snippets */}
+      {/* Public Snippets */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Public Snippets</h2>
-          <Link
-            href="/my-snippets"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all →
-          </Link>
-        </div>
-        {recentSnippets.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center">
-            No public snippets yet
-          </p>
+        <h2 className="text-xl font-semibold mb-4">Public Snippets</h2>
+        {snippets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+            <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No public snippets yet</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {recentSnippets.map((snippet) => (
+            {snippets.map((snippet) => (
               <SnippetCard key={snippet.id} snippet={snippet} />
             ))}
           </div>
