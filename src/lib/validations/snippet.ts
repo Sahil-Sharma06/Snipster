@@ -35,8 +35,8 @@ export const createSnippetSchema = z.object({
     }),
 
   language: z.enum(SUPPORTED_LANGUAGES, {
-    error: (issue)=>{
-        issue.input === undefined ? "Please select a language." : "Invalid Language Selected"
+    error: (issue) => {
+      return issue.input === undefined ? "Please select a language." : "Invalid Language Selected"
     }
   }),
 
