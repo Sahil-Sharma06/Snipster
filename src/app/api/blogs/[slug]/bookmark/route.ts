@@ -18,9 +18,9 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    const { slug: id } = await context.params
+    const { slug } = await context.params
 
-    const blog = await prisma.blog.findUnique({ where: { id } })
+    const blog = await prisma.blog.findUnique({ where: { slug } })
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 })
     }
