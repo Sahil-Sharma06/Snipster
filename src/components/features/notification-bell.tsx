@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { formatDistanceToNow } from "date-fns"
+import { RelativeTime } from "@/components/shared/relative-time"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -159,9 +159,7 @@ export function NotificationBell() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-snug">{notificationText(n)}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {formatDistanceToNow(new Date(n.createdAt), {
-                      addSuffix: true,
-                    })}
+                    <RelativeTime date={n.createdAt} />
                   </p>
                 </div>
                 {!n.read && (

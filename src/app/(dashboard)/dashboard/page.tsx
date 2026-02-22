@@ -1,11 +1,6 @@
-import { redirect } from "next/navigation"
+import { prisma } from "@/lib/db/prisma"
 import { getCurrentUser } from "@/lib/auth/current-user"
-
-export default async function DashboardRootPage() {
-  const user = await getCurrentUser()
-  if (!user) redirect("/sign-in")
-  redirect("/dashboard")
-}
+import { redirect } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"

@@ -26,7 +26,7 @@ import {
 export default async function Home() {
   const user = await currentUser()
   if (user) {
-    redirect("/feed")
+    redirect("/dashboard")
   }
 
   // Fetch live stats

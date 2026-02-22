@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { Loader2, MessageCircle, Send, Trash2 } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
+import { RelativeTime } from "@/components/shared/relative-time"
 import { toast } from "sonner"
 
 interface Comment {
@@ -187,9 +187,7 @@ export function CommentSection({
                       {comment.user.name || comment.user.username}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(comment.createdAt), {
-                        addSuffix: true,
-                      })}
+                      <RelativeTime date={comment.createdAt} />
                     </span>
                     {currentUserId === comment.user.id && (
                       <Button
