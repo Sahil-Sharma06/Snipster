@@ -41,19 +41,27 @@ export async function GET(request: Request) {
     // ========================================================================
     // BUILD QUERY FILTERS
     // ========================================================================
-    // Create Prisma where clause based on query parameters
-    const where: any = {
-      isPublic: true, // Only show public snippets
+    const where: any = {}
+
+    // "authorId=me" → return all snippets (public + private) for the current user
+    if (authorId === "me") {
+      const { userId } = await auth()
+      if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      }
+      const user = await prisma.user.findUnique({ where: { clerkId: userId } })
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 })
+      }
+      where.authorId = user.id
+    } else {
+      where.isPublic = true // Only show public snippets by default
+      if (authorId) where.authorId = authorId
     }
 
     // Add language filter if provided
     if (language) {
       where.language = language
-    }
-
-    // Add author filter if provided
-    if (authorId) {
-      where.authorId = authorId
     }
 
     // ========================================================================

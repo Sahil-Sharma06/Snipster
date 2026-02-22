@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { FolderOpen, Plus, Code2, Lock, Globe } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { ArrowRight } from "lucide-react"
 
 export default async function CollectionsPage() {
   const user = await getCurrentUser()
@@ -59,40 +60,40 @@ export default async function CollectionsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {collections.map((collection) => (
-            <Card
-              key={collection.id}
-              className="group p-5 border-border/60 hover:border-border hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
-                  <FolderOpen className="h-5 w-5 text-violet-500" />
+            <Link key={collection.id} href={`/collections/${collection.id}`}>
+              <Card className="group h-full p-5 border-border/60 hover:border-border hover:shadow-md transition-all">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
+                    <FolderOpen className="h-5 w-5 text-violet-500" />
+                  </div>
+                  {collection.isPublic ? (
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </div>
-                {collection.isPublic ? (
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Lock className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                  {collection.name}
+                </h3>
+                {collection.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                    {collection.description}
+                  </p>
                 )}
-              </div>
-              <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
-                {collection.name}
-              </h3>
-              {collection.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                  {collection.description}
-                </p>
-              )}
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Code2 className="h-3 w-3" />
-                  {collection._count.snippets} snippets
-                </span>
-                <span>
-                  {formatDistanceToNow(new Date(collection.updatedAt), {
-                    addSuffix: true,
-                  })}
-                </span>
-              </div>
-            </Card>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto pt-2">
+                  <span className="flex items-center gap-1">
+                    <Code2 className="h-3 w-3" />
+                    {collection._count.snippets} snippets
+                  </span>
+                  <span className="flex items-center gap-1 group-hover:text-primary transition-colors">
+                    {formatDistanceToNow(new Date(collection.updatedAt), {
+                      addSuffix: true,
+                    })}
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
