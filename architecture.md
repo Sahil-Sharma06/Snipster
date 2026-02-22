@@ -19,7 +19,7 @@ Snipster is a full-stack code snippet manager built with **Next.js 16** (App Rou
 | Forms            | React Hook Form + Zod validation                            |
 | Code Highlighting| `react-syntax-highlighter` (Prism, VSC Dark Plus theme)     |
 | Rich Text        | TipTap (starter-kit + code-block-lowlight)                  |
-| File Uploads     | UploadThing                                                 |
+| File Uploads     | Cloudinary                                                  |
 | State Management | Zustand                                                     |
 | Notifications    | Sonner (toast)                                               |
 | Utilities        | date-fns, slugify, clsx, tailwind-merge                     |

@@ -24,6 +24,7 @@ interface Comment {
 interface CommentSectionProps {
   snippetId?: string
   blogId?: string
+  blogSlug?: string
   currentUserId: string | null
   initialCount: number
 }
@@ -31,6 +32,7 @@ interface CommentSectionProps {
 export function CommentSection({
   snippetId,
   blogId,
+  blogSlug,
   currentUserId,
   initialCount,
 }: CommentSectionProps) {
@@ -42,14 +44,14 @@ export function CommentSection({
 
   useEffect(() => {
     fetchComments()
-  }, [snippetId, blogId])
+  }, [snippetId, blogSlug])
 
   const fetchComments = async () => {
     try {
       const endpoint = snippetId
         ? `/api/snippets/${snippetId}/comments`
-        : blogId
-        ? `/api/blogs/${blogId}/comments`
+        : blogSlug
+        ? `/api/blogs/${blogSlug}/comments`
         : ""
 
       if (!endpoint) return
@@ -74,8 +76,8 @@ export function CommentSection({
     try {
       const endpoint = snippetId
         ? `/api/snippets/${snippetId}/comments`
-        : blogId
-        ? `/api/blogs/${blogId}/comments`
+        : blogSlug
+        ? `/api/blogs/${blogSlug}/comments`
         : ""
 
       if (!endpoint) {

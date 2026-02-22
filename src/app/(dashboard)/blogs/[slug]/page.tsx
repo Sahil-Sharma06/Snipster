@@ -186,7 +186,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
       {/* Comments */}
       <Separator />
       <CommentSection
-        blogId={blog.id}
+        blogSlug={blog.slug}
         currentUserId={currentUserData?.id || null}
         initialCount={blog._count.comments}
       />

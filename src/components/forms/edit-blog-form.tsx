@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card"
 import { Loader2, X, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { RichTextEditor } from "@/components/shared/rich-text-editor"
+import { ImageUpload } from "@/components/shared/image-upload"
 
 interface EditBlogFormProps {
   blog: {
@@ -124,15 +125,15 @@ export function EditBlogForm({ blog }: EditBlogFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="coverImage">Cover Image URL</Label>
-        <Input
-          id="coverImage"
-          type="url"
-          placeholder="https://example.com/image.jpg (optional)"
+        <Label htmlFor="coverImage">Cover Image</Label>
+        <ImageUpload
           value={coverImage}
-          onChange={(e) => setCoverImage(e.target.value)}
+          onChange={setCoverImage}
           disabled={isSubmitting}
         />
+        <p className="text-xs text-muted-foreground">
+          Upload a cover image for your blog post (max 4MB)
+        </p>
       </div>
 
       <div className="space-y-2">
