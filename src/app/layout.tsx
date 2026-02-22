@@ -2,6 +2,8 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import "./globals.css"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Snipster — Code Snippet Manager",
   description:
