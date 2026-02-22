@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { SnippetCard } from "@/components/shared/snippet-card"
+import { FollowButton } from "@/components/features/follow-button"
 import {
   Code2,
   FolderOpen,
@@ -58,8 +59,17 @@ export default async function PublicProfilePage({
 
   if (!profileUser) notFound()
 
-  // Don't show the public profile for the current user — redirect to /profile
-  // (handled via the nav, but we allow it here too)
+  // Check if the current user is already following this profile
+  const isFollowing = currentUser
+    ? !!(await prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: currentUser.id,
+            followingId: profileUser.id,
+          },
+        },
+      }))
+    : false
 
   const snippets = await prisma.snippet.findMany({
     where: { authorId: profileUser.id, isPublic: true },
@@ -142,13 +152,19 @@ export default async function PublicProfilePage({
                   </p>
                 )}
               </div>
-              {isOwnProfile && (
+              {isOwnProfile ? (
                 <a
                   href="/profile/edit"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 >
                   Edit profile →
                 </a>
+              ) : (
+                <FollowButton
+                  targetUserId={profileUser.id}
+                  initialFollowing={isFollowing}
+                  isLoggedIn={!!currentUser}
+                />
               )}
             </div>
             {profileUser.bio && (

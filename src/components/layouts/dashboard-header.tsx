@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Code2 } from "lucide-react"
 import { ThemeToggle } from "@/components/shared/theme-toggle"
 import { MobileNav } from "@/components/layouts/mobile-nav"
+import { NotificationBell } from "@/components/features/notification-bell"
 
 export function DashboardHeader() {
   return (
@@ -23,6 +24,7 @@ export function DashboardHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <NotificationBell />
           <UserButton
             afterSignOutUrl="/"
             appearance={{

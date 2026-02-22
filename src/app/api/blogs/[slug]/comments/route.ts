@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
 import { z } from "zod"
+import { createNotification } from "@/lib/notifications"
 
 const commentSchema = z.object({
   content: z.string().min(1, "Comment cannot be empty").max(1000, "Comment is too long"),
@@ -83,6 +84,13 @@ export async function POST(request: Request, context: RouteContext) {
           },
         },
       },
+    })
+
+    await createNotification({
+      userId: blog.authorId,
+      actorId: user.id,
+      type: "COMMENT_BLOG",
+      blogId: blog.id,
     })
 
     return NextResponse.json(comment, { status: 201 })

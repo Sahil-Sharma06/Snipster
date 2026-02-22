@@ -27,8 +27,11 @@ model User {
   comments   Comment[]
   likes      Like[]
   bookmarks  Bookmark[]
-  followers  Follow[]     @relation("following")
-  following  Follow[]     @relation("follower")
+  followers  Follow[]        @relation("following")
+  following  Follow[]        @relation("follower")
+
+  notifications     Notification[] @relation("notifications")
+  actionsTriggered  Notification[] @relation("actionsTriggered")
 }
 
 model Snippet {
@@ -45,10 +48,11 @@ model Snippet {
   authorId String @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  collections CollectionSnippet[]
-  comments    Comment[]
-  likes       Like[]
-  bookmarks   Bookmark[]
+  collections   CollectionSnippet[]
+  comments      Comment[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
 }
 
 model Blog {
@@ -68,9 +72,10 @@ model Blog {
   authorId String @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  comments  Comment[]
-  likes     Like[]
-  bookmarks Bookmark[]
+  comments      Comment[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
 }
 
 model Collection {
@@ -158,4 +163,34 @@ model Follow {
   following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+}
+
+enum NotificationType {
+  FOLLOW
+  LIKE_SNIPPET
+  LIKE_BLOG
+  COMMENT_SNIPPET
+  COMMENT_BLOG
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Recipient
+  userId String @db.ObjectId
+  user   User   @relation("notifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Actor (who triggered the notification)
+  actorId String @db.ObjectId
+  actor   User   @relation("actionsTriggered", fields: [actorId], references: [id], onDelete: Cascade)
+
+  // Optional context
+  snippetId String?  @db.ObjectId
+  snippet   Snippet? @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  blogId String? @db.ObjectId
+  blog   Blog?   @relation(fields: [blogId], references: [id], onDelete: Cascade)
 }

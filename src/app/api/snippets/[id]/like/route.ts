@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
+import { createNotification } from "@/lib/notifications"
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -34,6 +35,13 @@ export async function POST(request: Request, context: RouteContext) {
     } else {
       await prisma.like.create({
         data: { userId: user.id, snippetId },
+      })
+      // Notify snippet author
+      await createNotification({
+        userId: snippet.authorId,
+        actorId: user.id,
+        type: "LIKE_SNIPPET",
+        snippetId,
       })
     }
 
