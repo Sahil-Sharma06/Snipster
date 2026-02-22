@@ -12,6 +12,8 @@ import {
   FolderOpen,
   Menu,
   FileCode,
+  FileText,
+  Bookmark,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -26,8 +28,9 @@ import { Separator } from "@/components/ui/separator"
 const navigation = [
   { name: "Feed", href: "/feed", icon: Rss },
   { name: "My Snippets", href: "/my-snippets", icon: FileCode },
-  { name: "Create Snippet", href: "/snippets/new", icon: Plus },
   { name: "Collections", href: "/collections", icon: FolderOpen },
+  { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
+  { name: "Blogs", href: "/blogs", icon: FileText },
   { name: "Profile", href: "/profile", icon: User },
 ]
 
