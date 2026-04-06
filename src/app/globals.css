@@ -123,12 +123,101 @@
   to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.1); }
+}
+
 .gradient-text {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ── Language color system ───────────────────────────────────── */
+/* Usage: style={{ borderColor: "var(--lang-javascript)" }} etc. */
+:root {
+  --lang-javascript:  #f7df1e;
+  --lang-typescript:  #3178c6;
+  --lang-python:      #3776ab;
+  --lang-java:        #ed8b00;
+  --lang-go:          #00acd7;
+  --lang-rust:        #ce422b;
+  --lang-php:         #8892be;
+  --lang-ruby:        #cc342d;
+  --lang-swift:       #fa7343;
+  --lang-kotlin:      #7f52ff;
+  --lang-csharp:      #953dac;
+  --lang-cpp:         #00599c;
+  --lang-c:           #555555;
+  --lang-html:        #e34f26;
+  --lang-css:         #1572b6;
+  --lang-scss:        #cd6799;
+  --lang-sql:         #336791;
+  --lang-bash:        #4eaa25;
+  --lang-json:        #cbcb41;
+  --lang-yaml:        #cb171e;
+  --lang-markdown:    #083fa1;
+  --lang-default:     #64748b;
+}
+
+/* ── Card shimmer hover effect ───────────────────────────────── */
+.card-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255,255,255,0.035) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card-shimmer:hover::after {
+  opacity: 1;
+  animation: shimmer 0.7s ease-in-out;
+}
+
+/* ── Stat number animation ───────────────────────────────────── */
+.stat-number {
+  animation: count-up 0.4s ease-out both;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+/* ── Code preview token colors (used inside snippet cards) ───── */
+.token-keyword  { color: #569cd6; }
+.token-function { color: #dcdcaa; }
+.token-string   { color: #ce9178; }
+.token-comment  { color: #6a9955; }
+.token-number   { color: #b5cea8; }
+.token-type     { color: #4ec9b0; }
+.token-variable { color: #9cdcfe; }
 
 .hero-gradient {
   background: radial-gradient(

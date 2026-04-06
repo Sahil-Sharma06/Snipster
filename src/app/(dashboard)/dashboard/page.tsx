@@ -166,34 +166,32 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Welcome banner */}
-      <Card className="p-5 border-border/60 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 shrink-0">
+      <Card className="relative overflow-hidden p-5 border-border/60 flex items-center justify-between gap-4 flex-wrap">
+        {/* Subtle bg accent */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="flex items-center gap-4 relative">
+          <Avatar className="h-14 w-14 shrink-0 ring-2 ring-border">
             <AvatarImage src={fullUser.image ?? ""} />
-            <AvatarFallback className="text-xl">
+            <AvatarFallback className="text-xl font-bold">
               {fullUser.name?.charAt(0) ?? fullUser.username?.charAt(0) ?? "?"}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-xl font-bold leading-tight">
-              Welcome back, {fullUser.name ?? fullUser.username ?? "there"}
+              Welcome back, {fullUser.name ?? fullUser.username ?? "there"} 👋
             </h1>
             {fullUser.username && (
-              <p className="text-sm text-muted-foreground">
-                @{fullUser.username}
-              </p>
+              <p className="text-sm text-muted-foreground">@{fullUser.username}</p>
             )}
             {fullUser.bio && (
-              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1 max-w-md">
-                {fullUser.bio}
-              </p>
+              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1 max-w-md">{fullUser.bio}</p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap relative">
           {unreadNotifCount > 0 && (
             <Link href="/notifications">
-              <Button variant="outline" size="sm" className="relative">
+              <Button variant="outline" size="sm" className="relative border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
                 <Bell className="mr-2 h-4 w-4" />
                 {unreadNotifCount} unread
               </Button>
@@ -216,32 +214,26 @@ export default async function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        {statCards.map((stat) => {
+        {statCards.map((stat, i) => {
           const inner = (
             <Card
               key={stat.label}
-              className="p-4 border-border/60 flex items-center gap-3 hover:border-border transition-all hover:shadow-sm h-full"
+              className="card-shimmer relative overflow-hidden p-4 border-border/60 flex items-center gap-4 hover:border-border transition-all hover:shadow-md h-full group"
             >
-              <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}
-              >
+              {/* Glow accent */}
+              <div className={`absolute top-0 right-0 h-20 w-20 rounded-full blur-2xl opacity-[0.07] ${stat.bg} pointer-events-none`} />
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${stat.bg} group-hover:scale-110 transition-transform duration-200`}>
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-2xl font-bold leading-none">{stat.value}</p>
-                <p className="text-xs font-medium text-foreground mt-1">
-                  {stat.label}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {stat.sub}
-                </p>
+                <p className="stat-number text-2xl font-bold leading-none tabular-nums" style={{ animationDelay: `${i * 60}ms` }}>{stat.value}</p>
+                <p className="text-xs font-semibold text-foreground mt-1">{stat.label}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{stat.sub}</p>
               </div>
             </Card>
           )
           return stat.href ? (
-            <Link key={stat.label} href={stat.href} className="block">
-              {inner}
-            </Link>
+            <Link key={stat.label} href={stat.href} className="block">{inner}</Link>
           ) : (
             <div key={stat.label}>{inner}</div>
           )
