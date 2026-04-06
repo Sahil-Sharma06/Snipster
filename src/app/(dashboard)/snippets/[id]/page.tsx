@@ -8,10 +8,12 @@ import { CodeBlock } from "@/components/shared/code-block"
 import { SnippetActions } from "@/components/features/snippet-actions"
 import { LikeButton } from "@/components/features/like-button"
 import { BookmarkButton } from "@/components/features/bookmark-button"
+import { ForkButton } from "@/components/features/fork-button"
 import { CommentSection } from "@/components/features/comment-section"
 import { ViewTracker } from "@/components/shared/view-tracker"
 import { getCurrentUser } from "@/lib/auth/current-user"
 import { Eye, Calendar } from "lucide-react"
+import Link from "next/link"
 
 interface SnippetPageProps {
   params: Promise<{ id: string }>
@@ -143,14 +145,16 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
             {snippet.language}
           </Badge>
           {snippet.tags.map((tag: string) => (
-            <Badge key={tag} variant="outline">
-              {tag}
-            </Badge>
+            <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`}>
+              <Badge variant="outline" className="cursor-pointer hover:bg-muted transition-colors">
+                #{tag}
+              </Badge>
+            </Link>
           ))}
         </div>
 
         {/* Social Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <LikeButton
             snippetId={snippet.id}
             initialLiked={hasLiked}
@@ -160,6 +164,11 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
             snippetId={snippet.id}
             initialBookmarked={hasBookmarked}
             initialCount={snippet._count.bookmarks}
+          />
+          <ForkButton
+            snippetId={snippet.id}
+            isLoggedIn={!!currentUserData}
+            isAuthor={isAuthor}
           />
         </div>
       </div>

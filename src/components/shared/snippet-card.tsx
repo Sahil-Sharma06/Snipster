@@ -78,13 +78,18 @@ export function SnippetCard({ snippet }: SnippetCardProps) {
               {snippet.language}
             </Badge>
             {snippet.tags.slice(0, 2).map((tag) => (
-              <Badge
+              <Link
                 key={tag}
-                variant="outline"
-                className="text-[10px] px-1.5 py-0 h-5"
+                href={`/tags/${encodeURIComponent(tag)}`}
+                onClick={(e) => e.stopPropagation()}
               >
-                {tag}
-              </Badge>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0 h-5 hover:bg-muted transition-colors"
+                >
+                  #{tag}
+                </Badge>
+              </Link>
             ))}
             {snippet.tags.length > 2 && (
               <Badge

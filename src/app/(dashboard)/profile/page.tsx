@@ -3,13 +3,15 @@ import { getCurrentUser } from "@/lib/auth/current-user"
 import { redirect } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { SnippetCard } from "@/components/shared/snippet-card"
+import { BlogCard } from "@/components/shared/blog-card"
+import { ProfileTabs } from "@/components/features/profile-tabs"
 import {
   Code2,
   FolderOpen,
-  Heart,
   Users,
   UserPlus,
   Calendar,
@@ -17,14 +19,24 @@ import {
   Github,
   Twitter,
   Pencil,
+  FileText,
+  Heart,
+  MessageCircle,
+  Clock,
+  Lock,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
-export default async function ProfilePage() {
+interface ProfilePageProps {
+  searchParams: Promise<{ tab?: string }>
+}
+
+export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const user = await getCurrentUser()
   if (!user) redirect("/sign-in")
+
+  const { tab = "snippets" } = await searchParams
 
   const fullUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -32,11 +44,10 @@ export default async function ProfilePage() {
       _count: {
         select: {
           snippets: true,
+          blogs: { where: { published: true } },
           collections: true,
           followers: true,
           following: true,
-          likes: true,
-          bookmarks: true,
         },
       },
     },
@@ -44,28 +55,40 @@ export default async function ProfilePage() {
 
   if (!fullUser) redirect("/sign-in")
 
-  const recentSnippets = await prisma.snippet.findMany({
-    where: { authorId: user.id, isPublic: true },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          image: true,
-        },
-      },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-          bookmarks: true,
-        },
-      },
-    },
-  })
+  const [snippets, blogs, collections] = await Promise.all([
+    tab === "snippets"
+      ? prisma.snippet.findMany({
+          where: { authorId: user.id },
+          orderBy: { createdAt: "desc" },
+          take: 18,
+          include: {
+            author: { select: { id: true, name: true, username: true, image: true } },
+            _count: { select: { likes: true, comments: true, bookmarks: true } },
+          },
+        })
+      : Promise.resolve([]),
+
+    tab === "blogs"
+      ? prisma.blog.findMany({
+          where: { authorId: user.id },
+          orderBy: { createdAt: "desc" },
+          take: 18,
+          include: {
+            author: { select: { id: true, name: true, username: true, image: true } },
+            _count: { select: { likes: true, comments: true } },
+          },
+        })
+      : Promise.resolve([]),
+
+    tab === "collections"
+      ? prisma.collection.findMany({
+          where: { userId: user.id },
+          orderBy: { updatedAt: "desc" },
+          take: 18,
+          include: { _count: { select: { snippets: true } } },
+        })
+      : Promise.resolve([]),
+  ])
 
   const stats = [
     {
@@ -76,11 +99,11 @@ export default async function ProfilePage() {
       bg: "bg-blue-500/10",
     },
     {
-      label: "Collections",
-      value: fullUser._count.collections,
-      icon: FolderOpen,
-      color: "text-violet-500",
-      bg: "bg-violet-500/10",
+      label: "Blog Posts",
+      value: fullUser._count.blogs,
+      icon: FileText,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
     },
     {
       label: "Followers",
@@ -93,8 +116,8 @@ export default async function ProfilePage() {
       label: "Following",
       value: fullUser._count.following,
       icon: UserPlus,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
+      color: "text-violet-500",
+      bg: "bg-violet-500/10",
     },
   ]
 
@@ -113,9 +136,14 @@ export default async function ProfilePage() {
           </Avatar>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-2">
-              <h1 className="text-2xl font-bold">
-                {fullUser.name || fullUser.username}
-              </h1>
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {fullUser.name || fullUser.username}
+                </h1>
+                {fullUser.username && (
+                  <p className="text-muted-foreground">@{fullUser.username}</p>
+                )}
+              </div>
               <Link href="/profile/edit">
                 <Button variant="outline" size="sm" className="shrink-0">
                   <Pencil className="mr-2 h-3.5 w-3.5" />
@@ -123,9 +151,6 @@ export default async function ProfilePage() {
                 </Button>
               </Link>
             </div>
-            {fullUser.username && (
-              <p className="text-muted-foreground">@{fullUser.username}</p>
-            )}
             {fullUser.bio && (
               <p className="mt-2 text-sm text-muted-foreground">
                 {fullUser.bio}
@@ -180,20 +205,13 @@ export default async function ProfilePage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card
-            key={stat.label}
-            className="flex items-center gap-3 p-4 border-border/60"
-          >
-            <div
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}
-            >
+          <Card key={stat.label} className="flex items-center gap-3 p-4 border-border/60">
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}>
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
             <div className="min-w-0">
               <p className="text-2xl font-bold leading-none">{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stat.label}
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
             </div>
           </Card>
         ))}
@@ -201,29 +219,128 @@ export default async function ProfilePage() {
 
       <Separator />
 
-      {/* Recent Public Snippets */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Public Snippets</h2>
-          <Link
-            href="/my-snippets"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all →
-          </Link>
+      {/* Tabs  — re-use ProfileTabs (it reads ?tab= from the URL) */}
+      <ProfileTabs
+        activeTab={tab}
+        username={fullUser.username ?? fullUser.id}
+      />
+
+      {/* Snippets Tab */}
+      {tab === "snippets" && (
+        <div>
+          {snippets.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+              <Code2 className="h-10 w-10 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-3">No snippets yet</p>
+              <Link href="/snippets/new">
+                <Button size="sm" variant="outline">
+                  Create your first snippet
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(snippets as any[]).map((snippet) => (
+                <SnippetCard key={snippet.id} snippet={snippet} />
+              ))}
+            </div>
+          )}
         </div>
-        {recentSnippets.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center">
-            No public snippets yet
+      )}
+
+      {/* Blogs Tab */}
+      {tab === "blogs" && (
+        <div>
+          {blogs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+              <FileText className="h-10 w-10 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-3">No blog posts yet</p>
+              <Link href="/blogs/new">
+                <Button size="sm" variant="outline">
+                  Write your first post
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(blogs as any[]).map((blog) => (
+                <BlogCard key={blog.id} blog={blog} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Collections Tab */}
+      {tab === "collections" && (
+        <div>
+          {collections.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+              <FolderOpen className="h-10 w-10 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-3">No collections yet</p>
+              <Link href="/collections/new">
+                <Button size="sm" variant="outline">
+                  Create a collection
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {(collections as Array<{
+                id: string
+                name: string
+                description: string | null
+                isPublic: boolean
+                updatedAt: Date
+                _count: { snippets: number }
+              }>).map((collection) => (
+                <Link key={collection.id} href={`/collections/${collection.id}`}>
+                  <Card className="group h-full p-5 border-border/60 hover:border-border hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
+                        <FolderOpen className="h-5 w-5 text-violet-500" />
+                      </div>
+                      {!collection.isPublic && (
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
+                    <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
+                      {collection.name}
+                    </h3>
+                    {collection.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {collection.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {collection._count.snippets} snippet{collection._count.snippets !== 1 ? "s" : ""}
+                    </p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Followers Tab */}
+      {tab === "followers" && (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+          <Users className="h-10 w-10 text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">
+            View your followers on your public profile
           </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {recentSnippets.map((snippet) => (
-              <SnippetCard key={snippet.id} snippet={snippet} />
-            ))}
-          </div>
-        )}
-      </div>
+          {fullUser.username && (
+            <Link href={`/profile/${fullUser.username}?tab=followers`} className="mt-3">
+              <Button size="sm" variant="outline">
+                View followers
+              </Button>
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   )
 }
