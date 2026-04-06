@@ -54,6 +54,11 @@ model Snippet {
   likes         Like[]
   bookmarks     Bookmark[]
   notifications Notification[]
+
+  @@index([isPublic, createdAt(sort: Desc)])
+  @@index([isPublic, language])
+  @@index([authorId, isPublic])
+  @@index([language])
 }
 
 model Blog {
@@ -78,6 +83,9 @@ model Blog {
   likes         Like[]
   bookmarks     Bookmark[]
   notifications Notification[]
+
+  @@index([published, publishedAt(sort: Desc)])
+  @@index([authorId, published])
 }
 
 model Collection {
@@ -195,4 +203,7 @@ model Notification {
 
   blogId String? @db.ObjectId
   blog   Blog?   @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt(sort: Desc)])
 }

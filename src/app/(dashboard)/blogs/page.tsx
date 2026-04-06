@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -58,7 +59,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
       where: { published: true },
       select: { tags: true },
       orderBy: { publishedAt: "desc" },
-      take: 200,
+      take: 100,
     }),
   ])
 
@@ -130,10 +131,12 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                   <div className="flex flex-col sm:flex-row">
                     {blog.coverImage && (
                       <div className="sm:w-64 h-48 sm:h-auto bg-muted relative overflow-hidden shrink-0">
-                        <img
+                        <Image
                           src={blog.coverImage}
                           alt={blog.title}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover transition-transform group-hover:scale-105"
                         />
                       </div>
                     )}

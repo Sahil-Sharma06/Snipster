@@ -140,8 +140,8 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           },
         })
       : Promise.resolve(null),
-    prisma.snippet.findMany({ where: { isPublic: true }, select: { tags: true }, take: 200 }),
-    prisma.blog.findMany({ where: { published: true }, select: { tags: true }, take: 200 }),
+    prisma.snippet.findMany({ where: { isPublic: true }, select: { tags: true }, take: 100 }),
+    prisma.blog.findMany({ where: { published: true }, select: { tags: true }, take: 100 }),
     // Trending: most liked snippets from last 48h
     prisma.snippet.findMany({
       where: { isPublic: true, createdAt: { gte: hotSince } },

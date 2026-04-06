@@ -12,6 +12,7 @@ import { LikeButton } from "@/components/features/like-button"
 import { BookmarkButton } from "@/components/features/bookmark-button"
 import { CommentSection } from "@/components/features/comment-section"
 import { ViewTracker } from "@/components/shared/view-tracker"
+import Image from "next/image"
 import Link from "next/link"
 
 interface BlogPageProps {
@@ -110,10 +111,13 @@ export default async function BlogPage({ params }: BlogPageProps) {
       {/* Cover Image */}
       {blog.coverImage && (
         <div className="relative h-64 sm:h-80 w-full overflow-hidden rounded-lg">
-          <img
+          <Image
             src={blog.coverImage}
             alt={blog.title}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 1200px) 100vw, 800px"
+            className="object-cover"
+            priority
           />
         </div>
       )}

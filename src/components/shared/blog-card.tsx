@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { formatDistanceToNow } from "date-fns"
 import { Heart, MessageCircle, Clock, Eye } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const GRADIENTS = [
   "from-violet-500/20 to-purple-500/10",
@@ -57,10 +58,12 @@ export function BlogCard({ blog }: BlogCardProps) {
       {/* Cover */}
       {blog.coverImage ? (
         <div className="h-40 w-full overflow-hidden bg-muted shrink-0">
-          <img
+          <Image
             src={blog.coverImage}
             alt={blog.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
       ) : (
