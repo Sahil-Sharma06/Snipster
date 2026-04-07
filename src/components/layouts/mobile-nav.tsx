@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation"
 
 const mobileNavItems = [
   { name: "FEED", href: "/feed", icon: "dynamic_feed" },
-  { name: "SNIPS", href: "/snippets", icon: "code" },
+  { name: "SNIPS", href: "/my-snippets", icon: "code" },
   { name: "CREATE", href: "/snippets/new", icon: "add", isCenter: true },
-  { name: "BLOGS", href: "/blogs", icon: "article" },
+  { name: "BLOGS", href: "/my-blogs", icon: "article" },
   { name: "PROFILE", href: "/profile", icon: "person" },
 ]
 
