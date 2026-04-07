@@ -178,7 +178,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                         <div className="flex items-center gap-2 mb-4">
                           <span className="text-[10px] text-[#958da1] font-bold uppercase tracking-[0.2em]">{new Date(blog.publishedAt || blog.createdAt).toLocaleDateString()}</span>
                           <span className="w-1 h-1 rounded-full bg-[#4a4455]"></span>
-                          <span className="text-[10px] text-[#958da1] font-bold uppercase tracking-[0.2em]">{blog.readingTime || 5} min read</span>
+                          <span className="text-[10px] text-[#958da1] font-bold uppercase tracking-[0.2em]">{blog.readTime || 5} min read</span>
                         </div>
                         <h3 className="text-xl md:text-2xl font-bold mb-4 tracking-tight group-hover:text-[#d2bbff] transition-colors">{blog.title}</h3>
                         <p className="text-[#ccc3d8] text-sm line-clamp-3 leading-relaxed mb-6">

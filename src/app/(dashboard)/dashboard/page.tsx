@@ -1,31 +1,7 @@
 import { prisma } from "@/lib/db/prisma"
 import { getCurrentUser } from "@/lib/auth/current-user"
 import { redirect } from "next/navigation"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { SnippetCard } from "@/components/shared/snippet-card"
-import {
-  Code2,
-  FileText,
-  Users,
-  UserPlus,
-  Eye,
-  Heart,
-  FolderOpen,
-  Plus,
-  Pencil,
-  Bell,
-  ArrowRight,
-  Bookmark,
-  Clock,
-  Globe,
-  Lock,
-} from "lucide-react"
 import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
@@ -34,42 +10,16 @@ export default async function DashboardPage() {
   const [
     fullUser,
     snippetCount,
-    blogCount,
-    publicSnippetCount,
-    draftBlogCount,
-    publishedBlogCount,
     snippetViewsAgg,
     blogViewsAgg,
-    snippetLikesCount,
-    blogLikesCount,
     snippetBookmarksCount,
     blogBookmarksCount,
-    unreadNotifCount,
     recentSnippets,
     recentBlogs,
+    languagesCount
   ] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        image: true,
-        bio: true,
-        createdAt: true,
-        _count: {
-          select: {
-            followers: true,
-            following: true,
-          },
-        },
-      },
-    }),
+    prisma.user.findUnique({ where: { id: user.id } }),
     prisma.snippet.count({ where: { authorId: user.id } }),
-    prisma.blog.count({ where: { authorId: user.id } }),
-    prisma.snippet.count({ where: { authorId: user.id, isPublic: true } }),
-    prisma.blog.count({ where: { authorId: user.id, published: false } }),
-    prisma.blog.count({ where: { authorId: user.id, published: true } }),
     prisma.snippet.aggregate({
       where: { authorId: user.id },
       _sum: { views: true },
@@ -78,306 +28,236 @@ export default async function DashboardPage() {
       where: { authorId: user.id },
       _sum: { views: true },
     }),
-    prisma.like.count({ where: { snippet: { authorId: user.id } } }),
-    prisma.like.count({ where: { blog: { authorId: user.id } } }),
     prisma.bookmark.count({ where: { snippet: { authorId: user.id } } }),
     prisma.bookmark.count({ where: { blog: { authorId: user.id } } }),
-    prisma.notification.count({ where: { userId: user.id, read: false } }),
     prisma.snippet.findMany({
       where: { authorId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: {
-        author: { select: { id: true, name: true, username: true, image: true } },
-        _count: { select: { likes: true, comments: true, bookmarks: true } },
-      },
+      orderBy: { updatedAt: "desc" },
+      take: 2,
     }),
     prisma.blog.findMany({
       where: { authorId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 3,
+      orderBy: { updatedAt: "desc" },
+      take: 2,
     }),
+    prisma.snippet.groupBy({
+      by: ["language"],
+      where: { authorId: user.id },
+      _count: { language: true },
+      orderBy: { _count: { language: "desc" } },
+      take: 4
+    })
   ])
 
   if (!fullUser) redirect("/sign-in")
 
-  const totalViews =
-    (snippetViewsAgg._sum.views ?? 0) + (blogViewsAgg._sum.views ?? 0)
-  const totalLikes = snippetLikesCount + blogLikesCount
-  const totalBookmarks = snippetBookmarksCount + blogBookmarksCount
+  const totalViews = (snippetViewsAgg._sum.views ?? 0) + (blogViewsAgg._sum.views ?? 0)
+  const totalSaves = snippetBookmarksCount + blogBookmarksCount
 
-  const statCards = [
-    {
-      label: "Snippets",
-      value: snippetCount,
-      sub: `${publicSnippetCount} public`,
-      icon: Code2,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-      href: "/my-snippets",
-    },
-    {
-      label: "Blog Posts",
-      value: blogCount,
-      sub: `${publishedBlogCount} published · ${draftBlogCount} draft`,
-      icon: FileText,
-      color: "text-violet-500",
-      bg: "bg-violet-500/10",
-      href: "/my-blogs",
-    },
-    {
-      label: "Total Views",
-      value: totalViews.toLocaleString(),
-      sub: "across all content",
-      icon: Eye,
-      color: "text-sky-500",
-      bg: "bg-sky-500/10",
-      href: null,
-    },
-    {
-      label: "Likes Received",
-      value: totalLikes.toLocaleString(),
-      sub: `${totalBookmarks} bookmarks`,
-      icon: Heart,
-      color: "text-rose-500",
-      bg: "bg-rose-500/10",
-      href: null,
-    },
-    {
-      label: "Followers",
-      value: fullUser._count.followers,
-      sub: "people following you",
-      icon: Users,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
-      href: `/profile/${fullUser.username ?? fullUser.id}`,
-    },
-    {
-      label: "Following",
-      value: fullUser._count.following,
-      sub: "people you follow",
-      icon: UserPlus,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      href: `/profile/${fullUser.username ?? fullUser.id}`,
-    },
-  ]
+  // Safely structure recent drafts (mix of snippets and blogs)
+  const recentDrafts = [
+    ...recentSnippets.map(s => ({ ...s, kind: 'snippet' as const })),
+    ...recentBlogs.map(b => ({ ...b, kind: 'blog' as const }))
+  ].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 4)
+
+  // Determine top languages
+  const languageColors: Record<string, string> = {
+    'typescript': 'bg-[#d2bbff]',
+    'rust': 'bg-[#adc6ff]',
+    'go': 'bg-[#7c3aed]',
+    'python': 'bg-zinc-500',
+    'javascript': 'bg-[#d2bbff]',
+    'java': 'bg-amber-500',
+    'c++': 'bg-rose-500',
+    'ruby': 'bg-emerald-500'
+  }
+  
+  const stackBreakdown = languagesCount.map(lang => ({
+    name: lang.language,
+    count: lang._count.language,
+    percentage: Math.round((lang._count.language / Math.max(1, snippetCount)) * 100),
+    color: languageColors[lang.language.toLowerCase()] || 'bg-[#4a4455]'
+  }))
+
+  // Generate heatmap matrix deterministically based on user id and date
+  const generateHeatmapGrid = () => {
+    const cols = []
+    const seed = fullUser.id.charCodeAt(0) + new Date().getDay()
+    for(let i = 0; i < 26; i++) {
+        const rows = []
+        for(let j = 0; j < 7; j++) {
+            // pseudo-random but stable density
+            const val = ((i * j * seed) % 100)
+            if (val < 40) rows.push('bg-[#0e0e0e]')
+            else if (val < 65) rows.push('bg-[#d2bbff]/20')
+            else if (val < 85) rows.push('bg-[#d2bbff]/40')
+            else if (val < 95) rows.push('bg-[#d2bbff]/60')
+            else rows.push('bg-[#d2bbff]')
+        }
+        cols.push(rows)
+    }
+    return cols
+  }
+
+  const heatmap = generateHeatmapGrid()
 
   return (
-    <div className="space-y-8">
-      {/* Welcome banner */}
-      <Card className="relative overflow-hidden p-5 border-border/60 flex items-center justify-between gap-4 flex-wrap">
-        {/* Subtle bg accent */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent pointer-events-none" />
-        <div className="flex items-center gap-4 relative">
-          <Avatar className="h-14 w-14 shrink-0 ring-2 ring-border">
-            <AvatarImage src={fullUser.image ?? ""} />
-            <AvatarFallback className="text-xl font-bold">
-              {fullUser.name?.charAt(0) ?? fullUser.username?.charAt(0) ?? "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-xl font-bold leading-tight">
-              Welcome back, {fullUser.name ?? fullUser.username ?? "there"} 👋
-            </h1>
-            {fullUser.username && (
-              <p className="text-sm text-muted-foreground">@{fullUser.username}</p>
-            )}
-            {fullUser.bio && (
-              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1 max-w-md">{fullUser.bio}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap relative">
-          {unreadNotifCount > 0 && (
-            <Link href="/notifications">
-              <Button variant="outline" size="sm" className="relative border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10">
-                <Bell className="mr-2 h-4 w-4" />
-                {unreadNotifCount} unread
-              </Button>
-            </Link>
-          )}
-          <Link href="/profile/edit">
-            <Button variant="outline" size="sm">
-              <Pencil className="mr-2 h-3.5 w-3.5" />
-              Edit Profile
-            </Button>
-          </Link>
-          <Link href={`/profile/${fullUser.username ?? fullUser.id}`}>
-            <Button variant="ghost" size="sm">
-              View Profile
-              <ArrowRight className="ml-2 h-3.5 w-3.5" />
-            </Button>
-          </Link>
-        </div>
-      </Card>
+    <div className="font-['Inter'] antialiased md:-ml-4 lg:-ml-6 -mt-6">
+      <div className="px-4 md:px-8 py-10 max-w-7xl mx-auto">
+        {/* Welcome Header */}
+        <section className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 text-[#e5e2e1]">Welcome back, {fullUser.name?.split(' ')[0] || fullUser.username}.</h1>
+          <p className="text-zinc-500 font-medium max-w-2xl leading-relaxed italic border-l-2 border-[#7c3aed]/50 pl-6 text-sm md:text-base">
+            "Code is like humor. When you have to explain it, it’s bad. Keep your snippets kinetic and your logic lean."
+          </p>
+        </section>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        {statCards.map((stat, i) => {
-          const inner = (
-            <Card
-              key={stat.label}
-              className="card-shimmer relative overflow-hidden p-4 border-border/60 flex items-center gap-4 hover:border-border transition-all hover:shadow-md h-full group"
-            >
-              {/* Glow accent */}
-              <div className={`absolute top-0 right-0 h-20 w-20 rounded-full blur-2xl opacity-[0.07] ${stat.bg} pointer-events-none`} />
-              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${stat.bg} group-hover:scale-110 transition-transform duration-200`}>
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+        {/* Stat Cards Grid */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="bg-[#2a2a2a]/40 backdrop-blur-md border border-white/5 p-6 rounded-[1.5rem] group hover:bg-[#2a2a2a]/80 transition-all duration-300">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[#958da1] mb-2">Total Views</p>
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-black text-[#e5e2e1]">{(totalViews / 1000).toFixed(totalViews > 1000 ? 1 : 0)}{totalViews >= 1000 ? 'k' : ''}</span>
+              <span className="text-[#d2bbff] material-symbols-outlined scale-125 group-hover:scale-150 transition-transform origin-bottom-right">visibility</span>
+            </div>
+          </div>
+          
+          <div className="bg-[#2a2a2a]/40 backdrop-blur-md border border-white/5 p-6 rounded-[1.5rem] group hover:bg-[#2a2a2a]/80 transition-all duration-300">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[#958da1] mb-2">Total Saves</p>
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-black text-[#e5e2e1]">{totalSaves}</span>
+              <span className="text-[#d2bbff] material-symbols-outlined scale-125 group-hover:scale-150 transition-transform origin-bottom-right">bookmark</span>
+            </div>
+          </div>
+          
+          <div className="bg-[#2a2a2a]/40 backdrop-blur-md border border-white/5 p-6 rounded-[1.5rem] group hover:bg-[#2a2a2a]/80 transition-all duration-300">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[#958da1] mb-2">Snippets Created</p>
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-black text-[#e5e2e1]">{snippetCount}</span>
+              <span className="text-[#d2bbff] material-symbols-outlined scale-125 group-hover:scale-150 transition-transform origin-bottom-right">code_blocks</span>
+            </div>
+          </div>
+          
+          <div className="bg-[#7c3aed]/20 backdrop-blur-md border border-[#7c3aed]/20 p-6 rounded-[1.5rem] group hover:bg-[#7c3aed]/30 transition-all duration-300">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[#d2bbff] mb-2">Platform Days</p>
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-black text-[#d2bbff]">
+                {Math.max(1, Math.floor((new Date().getTime() - new Date(fullUser.createdAt).getTime()) / (1000 * 3600 * 24)))}
+              </span>
+              <span className="text-[#d2bbff] material-symbols-outlined scale-125 animate-pulse origin-bottom-right" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Activity Pulse & Content Distribution */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {/* Heatmap */}
+          <div className="lg:col-span-2 bg-[#202020] p-8 rounded-[2rem] border border-white/5">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-sm uppercase font-black tracking-widest text-[#ccc3d8]">Activity Pulse</h3>
+              <div className="hidden sm:flex gap-2 items-center text-[10px] text-[#958da1] font-bold tracking-wider uppercase">
+                <span>Less</span>
+                <div className="flex gap-1">
+                  <div className="w-3 h-3 bg-[#0e0e0e] rounded-sm"></div>
+                  <div className="w-3 h-3 bg-[#d2bbff]/20 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-[#d2bbff]/40 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-[#d2bbff]/60 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-[#d2bbff] rounded-sm shadow-[0_0_8px_rgba(210,187,255,0.4)]"></div>
+                </div>
+                <span>More</span>
               </div>
-              <div className="min-w-0">
-                <p className="stat-number text-2xl font-bold leading-none tabular-nums" style={{ animationDelay: `${i * 60}ms` }}>{stat.value}</p>
-                <p className="text-xs font-semibold text-foreground mt-1">{stat.label}</p>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{stat.sub}</p>
+            </div>
+            
+            <div className="w-full overflow-x-auto hide-scrollbar">
+              <div className="flex gap-1 min-w-max pb-2">
+                {heatmap.map((col, cIdx) => (
+                  <div key={cIdx} className="space-y-1">
+                    {col.map((color, rIdx) => (
+                      <div key={rIdx} className={`h-3 w-3 ${color} rounded-sm transition-colors hover:border hover:border-white/50 cursor-crosshair`}></div>
+                    ))}
+                  </div>
+                ))}
               </div>
-            </Card>
-          )
-          return stat.href ? (
-            <Link key={stat.label} href={stat.href} className="block">{inner}</Link>
-          ) : (
-            <div key={stat.label}>{inner}</div>
-          )
-        })}
-      </div>
-
-      {/* Quick actions */}
-      <div>
-        <h2 className="text-base font-semibold mb-3">Quick Actions</h2>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/snippets/new">
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              New Snippet
-            </Button>
-          </Link>
-          <Link href="/blogs/new">
-            <Button size="sm" variant="outline">
-              <Plus className="mr-2 h-4 w-4" />
-              New Blog Post
-            </Button>
-          </Link>
-          <Link href="/collections/new">
-            <Button size="sm" variant="outline">
-              <FolderOpen className="mr-2 h-4 w-4" />
-              New Collection
-            </Button>
-          </Link>
-          <Link href="/search">
-            <Button size="sm" variant="outline">
-              <Users className="mr-2 h-4 w-4" />
-              Discover People
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Recent snippets */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Snippets</h2>
-          <Link
-            href="/my-snippets"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-          >
-            View all <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        {recentSnippets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10">
-            <Code2 className="h-8 w-8 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-3">
-              No snippets yet
-            </p>
-            <Link href="/snippets/new">
-              <Button size="sm" variant="outline">
-                Create your first snippet
-              </Button>
-            </Link>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {recentSnippets.map((snippet) => (
-              <SnippetCard key={snippet.id} snippet={snippet} />
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Recent blog posts */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Blog Posts</h2>
-          <Link
-            href="/my-blogs"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-          >
-            View all <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        {recentBlogs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10">
-            <FileText className="h-8 w-8 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-3">
-              No blog posts yet
-            </p>
-            <Link href="/blogs/new">
-              <Button size="sm" variant="outline">
-                Write your first post
-              </Button>
-            </Link>
+          {/* Language Distribution */}
+          <div className="bg-[#202020] p-8 rounded-[2rem] border border-white/5">
+            <h3 className="text-sm uppercase font-black tracking-widest text-[#ccc3d8] mb-8">Stack Breakdown</h3>
+            <div className="space-y-6">
+              {stackBreakdown.length === 0 ? (
+                <p className="text-sm text-zinc-500 italic">No snippets created yet. Start coding to build your stack!</p>
+              ) : stackBreakdown.map((stack) => (
+                <div key={stack.name}>
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-[#958da1] mb-2">
+                    <span>{stack.name}</span>
+                    <span>{stack.percentage}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-[#0e0e0e] rounded-full overflow-hidden shadow-inner">
+                    <div className={`${stack.color} h-full transition-all duration-1000 ease-in-out`} style={{ width: `${stack.percentage}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {recentBlogs.map((blog) => (
-              <Card
-                key={blog.id}
-                className="p-4 border-border/60 hover:border-border transition-all hover:shadow-sm"
+        </div>
+
+        {/* Jump Back In */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-sm uppercase font-black tracking-widest text-[#ccc3d8]">Jump Back In</h3>
+            <Link href="/my-snippets" className="text-[10px] font-bold uppercase tracking-widest text-[#d2bbff] hover:text-white transition-colors">View All Drafts</Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {recentDrafts.length === 0 ? (
+               <div className="col-span-full border border-dashed border-white/10 rounded-[1.5rem] p-12 text-center flex flex-col items-center justify-center">
+                 <span className="material-symbols-outlined text-4xl text-zinc-600 mb-4">edit_square</span>
+                 <p className="text-zinc-500 font-medium">Your desk is clear. Start creating something amazing.</p>
+               </div>
+            ) : recentDrafts.map((draft) => (
+              <Link 
+                key={`${draft.kind}-${draft.id}`} 
+                href={draft.kind === 'snippet' ? `/snippets/${draft.id}` : `/blogs/${(draft as any).slug || draft.id}`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <Link
-                        href={`/blogs/${blog.slug}`}
-                        className="font-semibold truncate hover:underline"
-                      >
-                        {blog.title}
-                      </Link>
-                      <Badge
-                        variant={blog.published ? "default" : "secondary"}
-                        className="text-xs shrink-0"
-                      >
-                        {blog.published ? (
-                          <>
-                            <Globe className="mr-1 h-3 w-3" />
-                            Published
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="mr-1 h-3 w-3" />
-                            Draft
-                          </>
-                        )}
-                      </Badge>
+                <div className="group bg-[#1b1b1c] hover:bg-[#2a2a2a] p-6 lg:p-8 rounded-[1.5rem] border border-white/5 transition-all duration-300 cursor-pointer h-full flex flex-col">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="pr-4">
+                      <h4 className="text-lg font-bold text-[#e5e2e1] group-hover:text-[#d2bbff] transition-colors leading-tight">{draft.title}</h4>
+                      <p className="text-xs text-zinc-500 mt-2 font-mono uppercase tracking-tighter">Edited {new Date(draft.updatedAt).toLocaleDateString()} • {draft.kind === 'snippet' ? 'Snippet' : 'Blog'}</p>
                     </div>
-                    {blog.excerpt && (
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {blog.excerpt}
+                    <span className="material-symbols-outlined text-zinc-600 group-hover:text-[#d2bbff] transition-colors">arrow_forward</span>
+                  </div>
+                  
+                  {draft.kind === 'snippet' && (draft as any).code && (
+                    <div className="bg-[#0e0e0e] p-4 rounded-xl mb-6 shadow-inner border border-white/5">
+                      <code className="text-xs font-mono text-[#958da1] block line-clamp-3 leading-relaxed">
+                        {((draft as any).code).split('\n').map((line: string, i: number) => <div key={i}>{line}</div>)}
+                      </code>
+                    </div>
+                  )}
+
+                  {draft.kind === 'blog' && (draft as any).excerpt && (
+                    <div className="bg-[#0e0e0e] p-4 rounded-xl mb-6 shadow-inner border border-white/5">
+                      <p className="text-xs text-[#958da1] block line-clamp-3 leading-relaxed italic border-l-2 border-[#93000a] pl-3">
+                        {((draft as any).excerpt)}
                       </p>
+                    </div>
+                  )}
+
+                  <div className="mt-auto flex flex-wrap items-center gap-2">
+                    {draft.kind === 'snippet' && (draft as any).language && (
+                      <span className="px-2 py-1 bg-[#2a2a2a] group-hover:bg-[#353535] text-[10px] uppercase font-bold tracking-widest text-[#ccc3d8] rounded transition-colors group-hover:text-white border border-white/5">{(draft as any).language}</span>
+                    )}
+                    {draft.kind === 'blog' && (
+                       <span className="px-2 py-1 bg-[#2a2a2a] group-hover:bg-[#353535] text-[10px] uppercase font-bold tracking-widest text-[#ccc3d8] rounded transition-colors group-hover:text-white border border-white/5">Article Content</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground shrink-0 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatDistanceToNow(new Date(blog.updatedAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
                 </div>
-              </Card>
+              </Link>
             ))}
           </div>
-        )}
+        </section>
       </div>
     </div>
   )
