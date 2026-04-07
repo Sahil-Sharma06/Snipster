@@ -1,27 +1,6 @@
-﻿import { currentUser } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { prisma } from "@/lib/db/prisma"
-import {
-  Code2,
-  Sparkles,
-  Zap,
-  Heart,
-  FolderOpen,
-  Search,
-  Moon,
-  ArrowRight,
-  Terminal,
-  Users,
-  BookOpen,
-  Star,
-  GitFork,
-  Shield,
-  Globe,
-} from "lucide-react"
+import { currentUser } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 
 export default async function Home() {
   const user = await currentUser()
@@ -29,409 +8,297 @@ export default async function Home() {
     redirect("/dashboard")
   }
 
-  // Fetch live stats
-  const [snippetCount, userCount, collectionCount] = await Promise.all([
-    prisma.snippet.count({ where: { isPublic: true } }),
-    prisma.user.count(),
-    prisma.collection.count({ where: { isPublic: true } }),
-  ])
-
-  const formatCount = (n: number) => {
-    if (n >= 1000) return `${(n / 1000).toFixed(1)}k+`
-    return `${n}+`
-  }
-
-  const stats = [
-    { label: "Code Snippets", value: formatCount(snippetCount), icon: Code2, color: "text-blue-500" },
-    { label: "Developers", value: formatCount(userCount), icon: Users, color: "text-emerald-500" },
-    { label: "Collections", value: formatCount(collectionCount), icon: FolderOpen, color: "text-violet-500" },
-    { label: "Languages", value: "21+", icon: Globe, color: "text-amber-500" },
-  ]
-
   return (
-    <div className="min-h-screen">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-lg">
-        <div className="container flex h-16 items-center justify-between px-4 mx-auto max-w-6xl">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Code2 className="h-4 w-4" />
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+        .glass { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .text-gradient { background: linear-gradient(135deg, #d2bbff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .vsc-bg { background-color: #1e1e1e; }
+        .vsc-keyword { color: #569cd6; }
+        .vsc-func { color: #dcdcaa; }
+        .vsc-string { color: #ce9178; }
+        .vsc-comment { color: #6a9955; }
+      `}} />
+      <div className="bg-surface text-[#e5e2e1] selection:bg-primary-container selection:text-white font-['Inter'] antialiased min-h-screen">
+        {/* TopNavBar */}
+        <nav className="fixed top-0 w-full z-50 bg-[#202020]/70 backdrop-blur-xl flex items-center justify-between px-8 h-16 shadow-[0px_20px_40px_rgba(0,0,0,0.4)] tracking-tight">
+          <div className="flex items-center gap-8">
+            <span className="text-xl font-black tracking-tighter text-[#D2BBFF]">Snipster</span>
+            <div className="hidden md:flex gap-6">
+              <Link className="text-[#D2BBFF] border-b-2 border-[#7C3AED] pb-1" href="/">Feed</Link>
+              <Link className="text-zinc-400 font-medium hover:text-zinc-100 transition-colors" href="/sign-in">Snippets</Link>
+              <Link className="text-zinc-400 font-medium hover:text-zinc-100 transition-colors" href="/sign-in">Blogs</Link>
             </div>
-            <span>Snipster</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/sign-in">
-              <Button variant="ghost" size="sm">Sign In</Button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden lg:flex items-center bg-white/5 rounded-full px-4 py-1.5 border border-white/10">
+              <span className="material-symbols-outlined text-zinc-500 text-sm">search</span>
+              <input className="bg-transparent border-none text-xs focus:ring-0 placeholder-zinc-600 outline-none text-on-surface w-48" placeholder="Search the archive..." type="text" />
+            </div>
+            <Link href="/sign-in" className="p-2 hover:bg-white/5 transition-all duration-300 rounded-full scale-95 active:scale-90">
+              <span className="material-symbols-outlined text-[#D2BBFF]">login</span>
             </Link>
-            <Link href="/sign-up">
-              <Button size="sm">
-                Get Started
-                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-              </Button>
+            <div className="h-8 w-8 rounded-full overflow-hidden bg-surface-container-high border border-white/10">
+              <img alt="User profile" className="w-full h-full object-cover" data-alt="Portrait of a developer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNzrY0tav5ajh7Zu2N0qCjCaGY2-njPU8BDW_EzsmwUCpl-rRpWTyChR8HdL4CGFdYrsdeOD9MOT6f_O4Xz-h7DNRpz_6LOEhaM0HRKubLra2zSJT2bism__VhDR6Nbaqwqvo8b-vRBv7uE6cfKYyCKXHhqdK-mreuQDbHFvKmDcJ15UiO3DAzFY67YA-lOaSZP_yI1uAIAq53Qh7R8qvgCJFnB9_c2Gp3EydvnO-liZqMowS_itX8SFpvPdsXNWo4323vS6pLoMzc" />
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex">
+          {/* SideNavBar */}
+          <aside className="hidden md:flex flex-col gap-2 p-4 h-screen w-64 border-r border-white/5 bg-[#131313] fixed left-0 top-16 text-sm tracking-wide uppercase font-bold">
+            <div className="flex items-center gap-3 px-2 py-4 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome_motion</span>
+              </div>
+              <div>
+                <div className="text-lg font-black text-[#D2BBFF] tracking-tighter normal-case">Snipster</div>
+                <div className="text-[10px] text-zinc-500 tracking-widest">The Kinetic Archive</div>
+              </div>
+            </div>
+            <nav className="flex flex-col gap-1">
+              <Link className="flex items-center gap-3 px-4 py-3 text-[#D2BBFF] bg-[#2A2A2A] rounded-xl ease-out duration-200" href="/">
+                <span className="material-symbols-outlined">dynamic_feed</span>
+                <span>Feed</span>
+              </Link>
+              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
+                <span className="material-symbols-outlined">code</span>
+                <span>Snippets</span>
+              </Link>
+              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
+                <span className="material-symbols-outlined">article</span>
+                <span>Blogs</span>
+              </Link>
+              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
+                <span className="material-symbols-outlined">auto_awesome_motion</span>
+                <span>Collections</span>
+              </Link>
+              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
+                <span className="material-symbols-outlined">person</span>
+                <span>Profile</span>
+              </Link>
+            </nav>
+            <Link href="/sign-in" className="mt-8 mx-2 bg-primary-container text-white py-3 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+              <span className="material-symbols-outlined">add</span>
+              <span className="normal-case">Create New</span>
             </Link>
-          </div>
-        </div>
-      </header>
+          </aside>
 
-      {/* Hero */}
-      <section className="hero-gradient relative overflow-hidden border-b">
-        <div className="container mx-auto px-4 py-20 md:py-28 max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Text */}
-            <div>
-              <Badge variant="outline" className="mb-6 gap-1.5 text-sm font-medium py-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-                Your personal code snippet manager
-              </Badge>
-              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl leading-[1.1]">
-                Save, Organize &amp;{" "}
-                <span className="gradient-text">Share Your Code</span>
-              </h1>
-              <p className="mb-8 max-w-xl text-lg text-muted-foreground leading-relaxed">
-                Snipster helps developers store their code snippets, organize
-                them into collections, and share with the community. Stop
-                losing useful code in chat logs.
-              </p>
-              <div className="flex flex-col items-start gap-3 sm:flex-row">
-                <Link href="/sign-up">
-                  <Button size="lg" className="h-12 px-8 text-base">
-                    Start for Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/sign-in">
-                  <Button size="lg" variant="outline" className="h-12 px-8 text-base">
-                    Sign In
-                  </Button>
-                </Link>
-              </div>
-              <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Shield className="h-3.5 w-3.5 text-emerald-500" />
-                  Free forever
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 text-amber-500" />
-                  No credit card
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <GitFork className="h-3.5 w-3.5 text-blue-500" />
-                  Open source
-                </span>
-              </div>
-            </div>
-
-            {/* Right: Code preview */}
-            <div className="hidden lg:block">
-              <Card className="overflow-hidden border-border/50 shadow-2xl">
-                <div className="flex items-center gap-2 border-b bg-muted/50 px-4 py-3">
-                  <div className="h-3 w-3 rounded-full bg-red-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
-                  <div className="h-3 w-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 text-xs text-muted-foreground font-mono">useDebounce.ts</span>
-                  <Badge variant="outline" className="ml-auto text-xs py-0 h-5">TypeScript</Badge>
-                </div>
-                <div className="bg-[#1e1e1e] p-6">
-                  <pre className="text-sm leading-relaxed font-mono">
-                    <code>
-                      <span className="text-[#569cd6]">{"export function "}</span>
-                      <span className="text-[#dcdcaa]">{"useDebounce"}</span>
-                      <span className="text-[#d4d4d4]">{"<T>("}</span>
-                      <span className="text-[#9cdcfe]">{"value"}</span>
-                      <span className="text-[#d4d4d4]">{": T, "}</span>
-                      <span className="text-[#9cdcfe]">{"delay"}</span>
-                      <span className="text-[#d4d4d4]">{": "}</span>
-                      <span className="text-[#4ec9b0]">{"number"}</span>
-                      <span className="text-[#d4d4d4]">{")"}</span>
-                      <span className="block mt-2 text-[#d4d4d4]">{"  const ["}</span>
-                      <span className="text-[#9cdcfe]">{"    debounced, setDebounced"}</span>
-                      <span className="text-[#d4d4d4]">{"] ="}</span>
-                      <span className="block text-[#dcdcaa]">{"    useState"}</span>
-                      <span className="text-[#d4d4d4]">{"(value)"}</span>
-                      <span className="block mt-2 text-[#d4d4d4]">{"  "}</span>
-                      <span className="text-[#dcdcaa]">{"useEffect"}</span>
-                      <span className="text-[#d4d4d4]">{"(() => {"}</span>
-                      <span className="block text-[#d4d4d4]">{"    const timer = "}</span>
-                      <span className="text-[#dcdcaa]">{"setTimeout"}</span>
-                      <span className="text-[#d4d4d4]">{"(timeoutFn, delay)"}</span>
-                      <span className="block text-[#c586c0]">{"    return "}</span>
-                      <span className="text-[#d4d4d4]">{"() => "}</span>
-                      <span className="text-[#dcdcaa]">{"clearTimeout"}</span>
-                      <span className="text-[#d4d4d4]">{"(timer)"}</span>
-                      <span className="block text-[#d4d4d4]">{"  }, [value, delay])"}</span>
-                      <span className="block mt-2 text-[#c586c0]">{"  return "}</span>
-                      <span className="text-[#9cdcfe]">{"debounced"}</span>
-                      <span className="block text-[#d4d4d4]">{"}"}</span>
-                    </code>
-                  </pre>
-                </div>
-                <div className="border-t bg-muted/20 px-4 py-2.5 flex items-center gap-2 text-xs text-muted-foreground">
-                  <Heart className="h-3.5 w-3.5 text-rose-500" />
-                  <span>142 likes</span>
-                  <span className="ml-auto">Saved to 38 collections</span>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Live Stats */}
-      <section className="border-b py-12 bg-muted/20">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center text-center gap-2">
-                <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                <p className="text-3xl font-bold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="border-t py-24">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="mx-auto mb-16 max-w-2xl text-center">
-            <Badge variant="outline" className="mb-4">Features</Badge>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything you need
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Powerful tools to help you manage, discover, and share code snippets with the community.
-            </p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                icon: Terminal,
-                title: "Syntax Highlighting",
-                description: "21 supported languages with beautiful syntax highlighting. Your code always looks great.",
-                color: "text-blue-500",
-                bg: "bg-blue-500/10",
-              },
-              {
-                icon: FolderOpen,
-                title: "Smart Collections",
-                description: "Organize snippets into public or private collections. Share curated sets with your team.",
-                color: "text-violet-500",
-                bg: "bg-violet-500/10",
-              },
-              {
-                icon: Users,
-                title: "Community Feed",
-                description: "Discover snippets from developers worldwide. Follow creators and build your network.",
-                color: "text-emerald-500",
-                bg: "bg-emerald-500/10",
-              },
-              {
-                icon: Heart,
-                title: "Like & Bookmark",
-                description: "Save your favorites for later and show appreciation. Build your personal code library.",
-                color: "text-rose-500",
-                bg: "bg-rose-500/10",
-              },
-              {
-                icon: BookOpen,
-                title: "Developer Blogs",
-                description: "Write long-form posts with rich text editing. Share tutorials and insights with the community.",
-                color: "text-amber-500",
-                bg: "bg-amber-500/10",
-              },
-              {
-                icon: Search,
-                title: "Powerful Search",
-                description: "Find snippets instantly by title, language, or tag. Filter by the exact technology you need.",
-                color: "text-cyan-500",
-                bg: "bg-cyan-500/10",
-              },
-            ].map((feature) => (
-              <Card
-                key={feature.title}
-                className="group relative overflow-hidden border-border/50 p-6 transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5"
-              >
-                <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg ${feature.bg}`}>
-                  <feature.icon className={`h-5 w-5 ${feature.color}`} />
-                </div>
-                <h3 className="mb-2 font-semibold">{feature.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {feature.description}
+          {/* Main Content Area */}
+          <main className="flex-1 md:ml-64 mt-16 px-6 lg:px-12 py-12 bg-surface">
+            {/* Hero Section */}
+            <section className="max-w-6xl mx-auto mb-32 pt-12 text-center md:text-left grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-7">
+                <h1 className="text-5xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
+                  The Kinetic <br />
+                  <span className="text-gradient">Archive</span>
+                </h1>
+                <p className="text-xl text-on-surface-variant leading-relaxed max-w-xl mb-10 font-light">
+                  Elevate your technical assets. A premium editorial experience for developers to store, share, and discover high-impact code snippets and technical insights.
                 </p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  <Link href="/sign-up" className="bg-primary-container text-white px-8 py-4 rounded-full font-bold flex items-center gap-2 shadow-lg hover:shadow-primary-container/20 transition-all">
+                    Start Snipping
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
+                  <Link href="/sign-in" className="bg-surface-container-high border border-outline-variant/20 px-8 py-4 rounded-full font-bold text-on-surface hover:bg-surface-container-highest transition-all flex items-center">
+                    Explore Feed
+                  </Link>
+                </div>
 
-      {/* How it works */}
-      <section className="border-t bg-muted/30 py-24">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="mx-auto mb-16 max-w-2xl text-center">
-            <Badge variant="outline" className="mb-4">How it works</Badge>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Up and running in minutes
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Three simple steps to take control of your code snippets.
-            </p>
-          </div>
-          <div className="relative mx-auto grid max-w-4xl gap-8 md:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "Create an account",
-                description: "Sign up in seconds with your email. No credit card required, always free.",
-                icon: Zap,
-                color: "bg-blue-500/10 text-blue-500",
-              },
-              {
-                step: "02",
-                title: "Save your snippets",
-                description: "Paste code, pick a language, add tags. Your snippet is saved and searchable instantly.",
-                icon: Code2,
-                color: "bg-violet-500/10 text-violet-500",
-              },
-              {
-                step: "03",
-                title: "Share & discover",
-                description: "Publish to the feed, follow developers, and build the ultimate code reference library.",
-                icon: Users,
-                color: "bg-emerald-500/10 text-emerald-500",
-              },
-            ].map((item, i) => (
-              <div key={item.step} className="relative text-center">
-                {i < 2 && (
-                  <div className="absolute top-7 left-[calc(50%+2rem)] hidden md:block w-[calc(100%-4rem)] h-px bg-border" />
-                )}
-                <div className={`mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full ${item.color.split(" ")[0]}`}>
-                  <item.icon className={`h-6 w-6 ${item.color.split(" ")[1]}`} />
-                </div>
-                <div className="mb-2 text-sm font-bold text-muted-foreground">
-                  STEP {item.step}
-                </div>
-                <h3 className="mb-3 text-xl font-semibold">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Dark mode preview */}
-      <section className="border-t py-24">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="rounded-xl overflow-hidden border border-border/50 shadow-xl bg-[#0d1117]">
-                <div className="flex items-center gap-2 border-b border-white/10 bg-[#161b22] px-4 py-3">
-                  <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                  <span className="ml-2 text-xs text-white/40 font-mono">debounce.py</span>
-                  <span className="ml-auto text-xs text-white/40">Python</span>
-                </div>
-                <div className="p-6 font-mono text-sm">
-                  <div className="text-[#ff7b72]">{"def "}<span className="text-[#d2a8ff]">debounce</span><span className="text-[#e6edf3]">{"(func, wait):"}</span></div>
-                  <div className="text-[#8b949e] mt-1 ml-4">{"# Returns a debounced version of func"}</div>
-                  <div className="text-[#e6edf3] ml-4 mt-1">{"last_call = [None]"}</div>
-                  <div className="mt-2 ml-4">
-                    <span className="text-[#ff7b72]">{"def "}</span>
-                    <span className="text-[#d2a8ff]">{"debounced"}</span>
-                    <span className="text-[#e6edf3]">{"(*args):"}</span>
+                <div className="mt-16 flex gap-12 justify-center md:justify-start border-t border-white/5 pt-12">
+                  <div>
+                    <div className="text-3xl font-black text-on-surface">42K+</div>
+                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Snippets</div>
                   </div>
-                  <div className="ml-8 text-[#e6edf3]">{"if last_call[0]:"}</div>
-                  <div className="ml-12 text-[#e6edf3]">{"last_call[0].cancel()"}</div>
-                  <div className="ml-8 text-[#e6edf3]">{"t = Timer(wait, func, args)"}</div>
-                  <div className="ml-8 text-[#e6edf3]">{"last_call[0] = t"}</div>
-                  <div className="ml-8 text-[#e6edf3]">{"t.start()"}</div>
-                  <div className="mt-2 ml-4"><span className="text-[#ff7b72]">{"return "}</span><span className="text-[#e6edf3]">{"debounced"}</span></div>
+                  <div>
+                    <div className="text-3xl font-black text-on-surface">1.2M</div>
+                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Monthly Views</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-black text-on-surface">8.5K</div>
+                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Contributors</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <Badge variant="outline" className="mb-4">Dark Mode</Badge>
-              <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                Built for developers, day and night
-              </h2>
-              <p className="mb-6 text-lg text-muted-foreground leading-relaxed">
-                Full dark mode support throughout the app. Your eyes will thank
-                you during those late-night coding sessions.
-              </p>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                {[
-                  "Automatically follows your system preference",
-                  "Syntax-highlighted code previews in card view",
-                  "Optimized color palette for readability",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA */}
-      <section className="border-t bg-muted/30 py-24">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Sparkles className="h-8 w-8 text-primary" />
-            </div>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-              Ready to level up your workflow?
-            </h2>
-            <p className="mb-8 text-lg text-muted-foreground">
-              Join {formatCount(userCount)} developers already using Snipster to manage their code snippets.
-            </p>
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link href="/sign-up">
-                <Button size="lg" className="h-12 px-10 text-base">
-                  Create Free Account
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/sign-in">
-                <Button size="lg" variant="outline" className="h-12 px-10 text-base">
-                  Sign In
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+              {/* Floating Glass Cards */}
+              <div className="lg:col-span-5 relative h-[500px]">
+                <div className="absolute top-0 right-0 w-full h-full bg-primary/10 rounded-[3rem] blur-3xl opacity-30"></div>
 
-      {/* Footer */}
-      <footer className="border-t py-10">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-            <Link href="/" className="flex items-center gap-2 text-sm font-semibold">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <Code2 className="h-3 w-3" />
+                <div className="absolute top-4 -left-4 md:-left-12 z-20 w-80 bg-surface-container-high/80 glass p-6 rounded-[2rem] shadow-2xl border border-white/5 rotate-[-2deg]">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-error"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#e6ecff]"></div>
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  </div>
+                  <div className="font-mono text-xs leading-relaxed overflow-hidden whitespace-pre">
+                    <span className="vsc-keyword">async function</span> <span className="vsc-func">fetchArchive</span>() {"{"}<br />
+                    {"  "}<span className="vsc-keyword">const</span> data = <span className="vsc-keyword">await</span> kinetic.get();<br />
+                    {"  "}<span className="vsc-keyword">return</span> data.map(s =&gt; s.animate());<br />
+                    {"}"}
+                  </div>
+                </div>
+
+                <div className="absolute bottom-10 right-0 z-10 w-80 bg-[#1B1B1C]/90 glass p-0 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/5 rotate-[4deg]">
+                  <img className="w-full h-40 object-cover opacity-80" alt="Abstract shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw2KeCLrpGyo9HUwf_8CbKa2zGhwFw_I6DYfS0bRwpK0MoqxPOVEy_swXWUvMmUmjLUp34aVKikR5lZJ__EMFyOztu9OB1_LWpybQSZl16ejfZ8CeTH_QwWWDBvu8CWBdyYhlDNmoB9NczZqYgGMRC7er_lrev_lv5LBoxeRkHMGEsbYW_ncUsfQELQPOr_o-7pkkyzuV4TImNquf6tSZSDrUYQ-VhZjeltcPVMHC8DRPiW5ybmme32Q2fVX1LsQ5UNy4N3A6-Zm8J" />
+                  <div className="p-6">
+                    <div className="text-[10px] uppercase tracking-widest text-primary font-black mb-2">Editorial</div>
+                    <h3 className="text-lg font-bold leading-tight mb-2">The Future of Kinetic Syntax</h3>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-zinc-700"></div>
+                      <span className="text-[10px] text-zinc-400">by Marcus Kane</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span>Snipster</span>
-            </Link>
-            <p className="text-xs text-muted-foreground text-center">
-              Built for developers who value clean, reusable code.
-            </p>
-            <div className="flex gap-5 text-sm text-muted-foreground">
-              <Link href="/sign-in" className="hover:text-foreground transition-colors">
-                Sign In
-              </Link>
-              <Link href="/sign-up" className="hover:text-foreground transition-colors">
-                Sign Up
-              </Link>
-            </div>
-          </div>
+            </section>
+
+            {/* Featured Content Grid */}
+            <section className="max-w-6xl mx-auto mb-32">
+              <div className="flex justify-between items-end mb-12">
+                <div>
+                  <h2 className="text-4xl font-black tracking-tight mb-2">Editor&apos;s Choice</h2>
+                  <p className="text-on-surface-variant font-light">Curated technical masterpieces from the archive.</p>
+                </div>
+                <button className="text-primary font-bold flex items-center gap-1 hover:gap-3 transition-all">
+                  View All <span className="material-symbols-outlined">trending_flat</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {/* Large Blog Card */}
+                <div className="md:col-span-4 lg:col-span-4 h-[450px] relative rounded-[2rem] overflow-hidden group bg-surface-container">
+                  <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="Dark abstract wallpaper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARjFX4FFyxIB6nafZmTxsGlD9RLedaCZb8DYumlh8e_aVlk6KIyojGwrNf7smDy0cNbAKPkaQRgkMiSCDB98xnCQ0VVjVnPTvWSJsWWfdPUeADFqHRv32Wv4j-UiCOFhy0FZGqg-lzOakMYI3M7Lc1bFfwu3kRRC1OyKRIrFq-SAu5sN8L1jzMUq6N-ZvHlNGUp19k1lVZ3Q606dY_b9Z6hO_3_7lV0ytqOOAhO3G5TSWENE6_BUMT7XLrYju5lOu9S7kvMmpNNuMS" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-0 p-10">
+                    <span className="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-black tracking-widest uppercase mb-4">Must Read</span>
+                    <h3 className="text-4xl font-black text-white leading-tight mb-4">Building Reactive State with Zero Dependency</h3>
+                    <p className="text-zinc-400 max-w-md mb-6 leading-relaxed">Discover how to leverage internal event buses for lean, mean state management in modern JS applications.</p>
+                    <button className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full text-sm font-bold text-white">Read Article</button>
+                  </div>
+                </div>
+
+                {/* Code Snippet Bento 1 */}
+                <div className="md:col-span-2 lg:col-span-2 bg-surface-container-high rounded-[2rem] p-8 flex flex-col justify-between border border-white/5">
+                  <div>
+                    <span className="material-symbols-outlined text-primary mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
+                    <h4 className="text-xl font-bold mb-2">CSS Layout Hack</h4>
+                    <p className="text-zinc-500 text-sm mb-4">The ultimate 1-line centering with modern CSS grid.</p>
+                  </div>
+                  <div className="bg-surface-container-lowest p-4 rounded-xl font-mono text-xs text-on-surface-variant border border-white/5 whitespace-pre">
+                    <span className="vsc-keyword">display</span>: grid;<br />
+                    <span className="vsc-keyword">place-content</span>: center;
+                  </div>
+                </div>
+
+                {/* Small Stat Card */}
+                <div className="md:col-span-2 lg:col-span-2 bg-primary-container p-8 rounded-[2rem] flex flex-col justify-center items-center text-center">
+                  <div className="text-5xl font-black text-white mb-2">99%</div>
+                  <p className="text-white/80 text-sm font-bold tracking-tight">Performance Score on <br />all archived snippets</p>
+                </div>
+
+                {/* Mini Blog Feed */}
+                <div className="md:col-span-4 lg:col-span-4 bg-surface-container rounded-[2rem] p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center border border-white/5">
+                  <div className="space-y-6">
+                    <div className="group cursor-pointer">
+                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Snippet Collection</div>
+                      <h5 className="text-lg font-bold group-hover:text-primary transition-colors">Python Data Science Essentials</h5>
+                    </div>
+                    <div className="group cursor-pointer">
+                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Deep Dive</div>
+                      <h5 className="text-lg font-bold group-hover:text-primary transition-colors">Rust Memory Safety 101</h5>
+                    </div>
+                  </div>
+                  <div className="hidden md:block">
+                    <img className="rounded-[1.5rem] w-full h-32 object-cover grayscale opacity-50" alt="Code lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaEn38ReLuYdnRG0T2fBZXHbvi9LrrS902I-ilIGCzDY6fTT6juPb4XcjyhRmVIeZmMz0YJvnqBD4N12VK3uDjAWUIt7hVUVuJP7V3qejNEgGfSIt3m4o4oIyb0qe47LhsfxXIJqfQF0CV_7ydW-Z4QjnjgVyI2P5QUzysChS1z8_GeOaJUsPYLlP10Hq96XFZ6PK1CA63Xa0dFruo0x0Ff81qsGyJ8CWX5sRBAGN3rVgJ7pYE32kSLfID8mYqoQ6ETYHB4pZtEaAb" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="max-w-6xl mx-auto pt-24 pb-12 border-t border-white/5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-20">
+                <div className="col-span-2 md:col-span-1">
+                  <div className="text-2xl font-black tracking-tighter text-[#D2BBFF] mb-6">Snipster</div>
+                  <p className="text-zinc-500 text-sm leading-relaxed mb-8">Curating the future of technical knowledge through kinetic archiving.</p>
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 cursor-pointer transition-colors">
+                      <span className="material-symbols-outlined text-sm">share</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 cursor-pointer transition-colors">
+                      <span className="material-symbols-outlined text-sm">public</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Platform</h6>
+                  <ul className="space-y-4 text-zinc-500 text-sm">
+                    <li><Link className="hover:text-primary transition-colors" href="#">All Snippets</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">Technical Blogs</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">Collections</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">API Docs</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Company</h6>
+                  <ul className="space-y-4 text-zinc-500 text-sm">
+                    <li><Link className="hover:text-primary transition-colors" href="#">About</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">Careers</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">Privacy</Link></li>
+                    <li><Link className="hover:text-primary transition-colors" href="#">Terms</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Newsletter</h6>
+                  <p className="text-zinc-500 text-xs mb-4">Stay updated with the best snippets weekly.</p>
+                  <div className="relative">
+                    <input className="w-full bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs focus:ring-1 focus:ring-primary focus:border-transparent outline-none" placeholder="Email address" type="email" />
+                    <button className="absolute right-2 top-1.5 text-primary">
+                      <span className="material-symbols-outlined">send</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-white/5">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">© 2024 SNIPSTER THE KINETIC ARCHIVE. ALL RIGHTS RESERVED.</p>
+                <div className="flex gap-6 text-[10px] text-zinc-600 uppercase tracking-widest font-bold">
+                  <a className="hover:text-white transition-colors" href="#">Twitter</a>
+                  <a className="hover:text-white transition-colors" href="#">GitHub</a>
+                  <a className="hover:text-white transition-colors" href="#">Discord</a>
+                </div>
+              </div>
+            </footer>
+          </main>
         </div>
-      </footer>
-    </div>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-surface-container/90 backdrop-blur-xl border-t border-white/5 px-6 h-16 flex items-center justify-between z-50">
+          <Link href="/" className="text-primary flex flex-col items-center gap-1">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dynamic_feed</span>
+            <span className="text-[10px] font-bold">FEED</span>
+          </Link>
+          <Link href="/snippets" className="text-zinc-500 flex flex-col items-center gap-1">
+            <span className="material-symbols-outlined">code</span>
+            <span className="text-[10px] font-bold">SNIPS</span>
+          </Link>
+          <Link href="/sign-in" className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center -mt-8 shadow-lg shadow-primary-container/40">
+            <span className="material-symbols-outlined text-white">add</span>
+          </Link>
+          <Link href="/blogs" className="text-zinc-500 flex flex-col items-center gap-1">
+            <span className="material-symbols-outlined">article</span>
+            <span className="text-[10px] font-bold">BLOGS</span>
+          </Link>
+          <Link href="/sign-in" className="text-zinc-500 flex flex-col items-center gap-1">
+            <span className="material-symbols-outlined">person</span>
+            <span className="text-[10px] font-bold">PROFILE</span>
+          </Link>
+        </nav>
+      </div>
+    </>
   )
 }

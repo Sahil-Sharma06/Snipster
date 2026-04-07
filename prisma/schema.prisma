@@ -18,6 +18,7 @@ model User {
   githubUrl     String?
   twitterUrl    String?
   websiteUrl    String?
+  coverImage    String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

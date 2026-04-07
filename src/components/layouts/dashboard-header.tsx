@@ -1,55 +1,44 @@
 import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
-import { Code2, Search } from "lucide-react"
 import { ThemeToggle } from "@/components/shared/theme-toggle"
-import { MobileNav } from "@/components/layouts/mobile-nav"
 import { NotificationBell } from "@/components/features/notification-bell"
 
 export function DashboardHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-14 items-center gap-3 px-4 mx-auto">
-
-        {/* Mobile menu */}
-        <MobileNav />
-
-        {/* Logo */}
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 font-bold text-lg shrink-0"
-        >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Code2 className="h-3.5 w-3.5" />
-          </div>
-          <span className="hidden sm:inline tracking-tight">Snipster</span>
-        </Link>
-
-        {/* Search bar — navigates to /search */}
-        <Link
-          href="/search"
-          className="hidden md:flex items-center gap-2 h-8 flex-1 max-w-xs rounded-lg border border-border/60 bg-muted/40 px-3 text-sm text-muted-foreground hover:bg-muted hover:border-border transition-all cursor-pointer"
-        >
-          <Search className="h-3.5 w-3.5 shrink-0" />
-          <span className="flex-1">Search snippets, blogs, people…</span>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border border-border/60 bg-background px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
-            /
-          </kbd>
-        </Link>
-
-        <div className="flex-1" />
-
-        {/* Right actions */}
-        <div className="flex items-center gap-1.5">
-          <ThemeToggle />
-          <NotificationBell />
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: { avatarBox: "h-8 w-8" },
-            }}
+    <nav className="fixed top-0 w-full z-50 bg-[#202020]/70 backdrop-blur-xl flex items-center justify-between px-6 md:pr-8 md:pl-[18rem] h-16 shadow-[0px_20px_40px_rgba(0,0,0,0.4)] tracking-tight">
+      <div className="flex items-center gap-8 pl-0 lg:pl-0">
+        <span className="text-xl font-black tracking-tighter text-[#D2BBFF] md:hidden">Snipster</span>
+        
+        <Link href="/search" className="hidden lg:flex items-center bg-[#131313] rounded-full px-4 py-1.5 border border-white/5 hover:bg-[#1b1b1c] transition-colors cursor-pointer text-zinc-500 relative">
+          <span className="material-symbols-outlined text-sm mr-2 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">search</span>
+          <input 
+            className="bg-transparent border-none pl-6 pr-4 py-0 text-sm w-64 focus:ring-0 transition-all text-[#e5e2e1] focus:outline-none placeholder-zinc-600" 
+            placeholder="Search the archive..." 
+            type="text"
+            readOnly
           />
+        </Link>
+      </div>
+      
+      <div className="flex items-center gap-4">
+        <Link href="/search" className="text-zinc-400 hover:bg-white/5 p-2 rounded-full lg:hidden block">
+          <span className="material-symbols-outlined text-sm">search</span>
+        </Link>
+        <div className="scale-90 text-zinc-400">
+          <NotificationBell />
+        </div>
+        <div className="scale-90 text-zinc-400">
+          <ThemeToggle />
+        </div>
+        <div className="h-8 w-8 rounded-full flex items-center justify-center border border-white/10 shadow-sm overflow-hidden bg-surface-container-high ml-1 hover:scale-95 transition-transform cursor-pointer">
+          <UserButton
+             afterSignOutUrl="/"
+             appearance={{
+               elements: { avatarBox: "h-8 w-8 object-cover" },
+             }}
+           />
         </div>
       </div>
-    </header>
+    </nav>
   )
 }

@@ -5,9 +5,9 @@ import "./globals.css"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-  title: "Snipster — Code Snippet Manager",
+  title: "Snipster — The Kinetic Archive",
   description:
-    "Save, organize, and share your code snippets with the community.",
+    "Elevate your technical assets. A premium experience for developers to store, share, and discover code snippets.",
 }
 
 export default function RootLayout({
@@ -17,11 +17,15 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider dynamic>
-      <html lang="en" suppressHydrationWarning>
-        <body className="antialiased">
+      <html lang="en" suppressHydrationWarning className="dark">
+        <head>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        </head>
+        <body className="antialiased bg-surface text-[#e5e2e1] overflow-x-hidden selection:bg-primary-container selection:text-white font-['Inter']">
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
