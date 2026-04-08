@@ -1,6 +1,9 @@
 import Link from "next/link"
 import { currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { CardSpotlight } from "@/components/ui/card-spotlight"
+import { HeroLamp } from "@/components/shared/hero-lamp"
+import { TypingCodeBlock } from "@/components/shared/typing-code-block"
 
 export default async function Home() {
   const user = await currentUser()
@@ -11,293 +14,311 @@ export default async function Home() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-        .glass { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .text-gradient { background: linear-gradient(135deg, #d2bbff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .vsc-bg { background-color: #1e1e1e; }
-        .vsc-keyword { color: #569cd6; }
-        .vsc-func { color: #dcdcaa; }
-        .vsc-string { color: #ce9178; }
-        .vsc-comment { color: #6a9955; }
+        
+        .hero-gradient-custom {
+            background: radial-gradient(circle at 50% 50%, rgba(192, 193, 255, 0.08) 0%, rgba(10, 10, 10, 0) 70%);
+        }
+        .cta-gradient {
+            background: linear-gradient(135deg, #c0c1ff 0%, #8083ff 100%);
+        }
+        .glass-nav {
+            border-bottom: 1px solid rgba(58, 57, 57, 0.3);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Font Family Variables mappings as expected by classNames */
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .font-body { font-family: 'Inter', sans-serif; }
+        .font-label { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
       `}} />
-      <div className="bg-surface text-[#e5e2e1] selection:bg-primary-container selection:text-white font-['Inter'] antialiased min-h-screen">
+      <div className="bg-[#0a0a0a] text-[#e5e2e1] font-body selection:bg-primary selection:text-on-primary min-h-screen">
         {/* TopNavBar */}
-        <nav className="fixed top-0 w-full z-50 bg-[#202020]/70 backdrop-blur-xl flex items-center justify-between px-8 h-16 shadow-[0px_20px_40px_rgba(0,0,0,0.4)] tracking-tight">
-          <div className="flex items-center gap-8">
-            <span className="text-xl font-black tracking-tighter text-[#D2BBFF]">Snipster</span>
-            <div className="hidden md:flex gap-6">
-              <Link className="text-[#D2BBFF] border-b-2 border-[#7C3AED] pb-1" href="/">Feed</Link>
-              <Link className="text-zinc-400 font-medium hover:text-zinc-100 transition-colors" href="/sign-in">Snippets</Link>
-              <Link className="text-zinc-400 font-medium hover:text-zinc-100 transition-colors" href="/sign-in">Blogs</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:flex items-center bg-white/5 rounded-full px-4 py-1.5 border border-white/10">
-              <span className="material-symbols-outlined text-zinc-500 text-sm">search</span>
-              <input className="bg-transparent border-none text-xs focus:ring-0 placeholder-zinc-600 outline-none text-on-surface w-48" placeholder="Search the archive..." type="text" />
-            </div>
-            <Link href="/sign-in" className="p-2 hover:bg-white/5 transition-all duration-300 rounded-full scale-95 active:scale-90">
-              <span className="material-symbols-outlined text-[#D2BBFF]">login</span>
+        <nav className="absolute top-0 w-full z-50 border-b border-white/5 bg-[#0a0a0a]/30 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-6">
+            <span className="text-xl font-extrabold tracking-tighter text-white font-headline">Snipster</span>
+            <Link href="/sign-up" className="font-manrope text-sm font-medium tracking-tight text-[#C0C1FF] hover:bg-white/5 px-4 py-2 transition-all rounded-md">
+              Sign up
             </Link>
-            <div className="h-8 w-8 rounded-full overflow-hidden bg-surface-container-high border border-white/10">
-              <img alt="User profile" className="w-full h-full object-cover" data-alt="Portrait of a developer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNzrY0tav5ajh7Zu2N0qCjCaGY2-njPU8BDW_EzsmwUCpl-rRpWTyChR8HdL4CGFdYrsdeOD9MOT6f_O4Xz-h7DNRpz_6LOEhaM0HRKubLra2zSJT2bism__VhDR6Nbaqwqvo8b-vRBv7uE6cfKYyCKXHhqdK-mreuQDbHFvKmDcJ15UiO3DAzFY67YA-lOaSZP_yI1uAIAq53Qh7R8qvgCJFnB9_c2Gp3EydvnO-liZqMowS_itX8SFpvPdsXNWo4323vS6pLoMzc" />
-            </div>
           </div>
         </nav>
 
-        <div className="flex">
-          {/* SideNavBar */}
-          <aside className="hidden md:flex flex-col gap-2 p-4 h-screen w-64 border-r border-white/5 bg-[#131313] fixed left-0 top-16 text-sm tracking-wide uppercase font-bold">
-            <div className="flex items-center gap-3 px-2 py-4 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome_motion</span>
+        <main>
+          {/* Hero Section */}
+          <section className="relative overflow-hidden">
+            <HeroLamp />
+
+            {/* Code Block Visual Bleed */}
+            <div className="mt-20 max-w-5xl mx-auto relative px-8 mb-24 z-20">
+              <TypingCodeBlock />
+            </div>
+          </section>
+
+          {/* Problem/Solution */}
+          <section className="py-32 px-8">
+            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-24 items-center">
+              <div className="space-y-12">
+                <h2 className="text-3xl font-bold font-headline text-white leading-tight">The Fragmented <br/>Developer Experience</h2>
+                <div className="space-y-8">
+                  <div className="flex gap-6 items-start">
+                    <span className="material-symbols-outlined text-error mt-1">cancel</span>
+                    <div>
+                      <h3 className="text-on-surface font-bold mb-2">Too Many Platforms, No Single Flow</h3>
+                      <p className="text-on-surface-variant text-sm">Switching between GitHub, Discord, blogs, and bookmarks just to learn and stay updated.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-6 items-start">
+                    <span className="material-symbols-outlined text-error mt-1">cancel</span>
+                    <div>
+                      <h3 className="text-on-surface font-bold mb-2">Knowledge Gets Lost</h3>
+                      <p className="text-on-surface-variant text-sm">Useful snippets, ideas, and solutions disappear across repos, notes, and tabs.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-surface-container p-12 rounded-2xl relative border-l-4 border-primary">
+                <h2 className="text-3xl font-bold font-headline text-white leading-tight mb-12">The Snipster <br/>Experience</h2>
+                <div className="space-y-8">
+                  <div className="flex gap-6 items-start">
+                    <span className="material-symbols-outlined text-primary mt-1">check_circle</span>
+                    <div>
+                      <h3 className="text-on-surface font-bold mb-2">All-in-One Developer Hub</h3>
+                      <p className="text-on-surface-variant text-sm">Save code, write blogs, connect with developers, and stay updated — all in one place.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-6 items-start">
+                    <span className="material-symbols-outlined text-primary mt-1">check_circle</span>
+                    <div>
+                      <h3 className="text-on-surface font-bold mb-2">Discover What Actually Matters</h3>
+                      <p className="text-on-surface-variant text-sm">Explore real developer content — snippets, ideas, and insights — not noise.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Feature Grid (Bento) */}
+          <section className="py-32 bg-surface-container-low px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-20">
+                <span className="text-primary font-mono text-xs tracking-widest uppercase mb-4 block">Core Infrastructure</span>
+                <h2 className="text-4xl font-extrabold font-headline text-white">Built for High-Level Logic</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Snippets */}
+                <div className="md:col-span-2 bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+                  <span className="material-symbols-outlined text-primary mb-6 text-3xl">code</span>
+                  <h3 className="text-xl font-bold text-white mb-3">Snippet Management</h3>
+                  <p className="text-on-surface-variant text-sm mb-8 max-w-md">Version-controlled, cloud-synced snippets with full syntax highlighting for 100+ languages.</p>
+                  <img className="w-full h-48 object-cover rounded-md grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close up of a computer screen displaying high-contrast source code with vibrant syntax highlighting in a dark environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz4Q_lFioQQw1n6HB5wtwajhrUbiH0uMnKb672igY2SimEu4L82HkRBzgjKHILY2CSO_B9QXgis4ue_sLLR5IBRewv2g1Aeu5UAJ4VNDIPFTO9En2dDf6mKVz9x3io0a4aPPj9TI30Icxr7TCgFguqZ_0kCOyPAsBAhlxzBwYjpa0u4bF9FLy9wrbFyJtqM8JvmyM-mt9K3167HYa5sK7XJHqTM8tLWlbZxT60vgwUIj9ARCGvSMokw8eg_IFWaZ4vjo-8SF_xo0Q" alt="Snippets demo" />
+                </div>
+
+                {/* Blogging */}
+                <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10 flex flex-col justify-between">
+                  <div className="relative z-20">
+                    <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">edit_note</span>
+                    <h3 className="text-xl font-bold text-white mb-3">Developer Blogging</h3>
+                    <p className="text-on-surface-variant text-sm">Markdown-first editorial experience designed for technical long-form content.</p>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-outline-variant/20 relative z-20">
+                    <span className="text-primary text-xs font-mono">0.05ms READ TIME</span>
+                  </div>
+                </CardSpotlight>
+
+                {/* Social */}
+                <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10">
+                  <div className="relative z-20">
+                    <span className="material-symbols-outlined text-primary mb-6 text-3xl">hub</span>
+                    <h3 className="text-xl font-bold text-white mb-3">Architectural Social</h3>
+                    <p className="text-on-surface-variant text-sm">Connect with peers through a thread-based system optimized for code review and feedback.</p>
+                  </div>
+                </CardSpotlight>
+
+                {/* Engagement & Discovery */}
+                <div className="md:col-span-2 bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all grid md:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">explore</span>
+                    <h3 className="text-xl font-bold text-white mb-3">Tech News &amp; Discovery</h3>
+                    <p className="text-on-surface-variant text-sm">Aggregated news from top engineering blogs and real-time discovery of trending repositories.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                      <span className="material-symbols-outlined text-primary/40">rocket</span>
+                    </div>
+                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                      <span className="material-symbols-outlined text-primary/40">newspaper</span>
+                    </div>
+                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                      <span className="material-symbols-outlined text-primary/40">monitoring</span>
+                    </div>
+                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                      <span className="material-symbols-outlined text-primary/40">groups</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* How It Works */}
+          <section className="py-32 px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-24">
+                <h2 className="text-4xl font-extrabold font-headline text-white mb-4">How Snipster Works</h2>
+                <p className="text-on-surface-variant max-w-xl mx-auto">From saving code to sharing knowledge — everything in one simple flow.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+                {/* Connector Line (Desktop Only) */}
+                <div className="hidden md:block absolute top-12 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-outline-variant/30 to-transparent -z-10"></div>
+                
+                <div className="text-center group">
+                  <div className="w-24 h-24 bg-surface-container-lowest border border-outline-variant/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:border-primary transition-colors">
+                    <span className="text-2xl font-mono text-primary">01</span>
+                  </div>
+                  <h4 className="font-bold text-white mb-4">Create Your Space</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">Set up your profile and start building your personal developer hub.</p>
+                </div>
+                
+                <div className="text-center group">
+                  <div className="w-24 h-24 bg-surface-container-lowest border border-outline-variant/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:border-primary transition-colors">
+                    <span className="text-2xl font-mono text-primary">02</span>
+                  </div>
+                  <h4 className="font-bold text-white mb-4">Save & Organize</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">Store your code snippets, ideas, and solutions — neatly organized and always accessible.</p>
+                </div>
+
+                <div className="text-center group">
+                  <div className="w-24 h-24 bg-surface-container-lowest border border-outline-variant/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:border-primary transition-colors">
+                    <span className="text-2xl font-mono text-primary">03</span>
+                  </div>
+                  <h4 className="font-bold text-white mb-4">Share & Engage</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">Publish blogs, share snippets, and interact with developers through likes and discussions.</p>
+                </div>
+
+                <div className="text-center group">
+                  <div className="w-24 h-24 bg-surface-container-lowest border border-outline-variant/30 rounded-full flex items-center justify-center mx-auto mb-8 group-hover:border-primary transition-colors">
+                    <span className="text-2xl font-mono text-primary">04</span>
+                  </div>
+                  <h4 className="font-bold text-white mb-4">Grow & Discover</h4>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">Follow developers, explore new ideas, and stay updated with the latest in tech.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Value Prop */}
+          <section className="py-32 bg-[#0E0E0E] border-y border-outline-variant/10">
+            <div className="max-w-4xl mx-auto px-8 text-center">
+              <span className="text-tertiary font-mono text-xs tracking-widest mb-8 block">THE SNIPSTER ADVANTAGE</span>
+              <h2 className="text-4xl md:text-6xl font-extrabold font-headline text-white leading-[1.1] mb-12">
+                  One architectural monolith. <br/>Infinite developer <span className="text-primary">synergy.</span>
+              </h2>
+              <p className="text-on-surface-variant text-lg leading-relaxed mb-16">
+                  Stop searching through history. Stop switching tabs. Snipster is designed to be the background process of your professional life—quiet, efficient, and always ready to serve the right logic at the right time.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12 border-t border-outline-variant/10 text-center">
+                <div className="flex flex-col items-center">
+                  <div className="text-xl font-bold text-white mb-2">Early Access</div>
+                  <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Join a growing developer community</div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl font-bold text-white mb-2">Real Usage</div>
+                  <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Snippets, blogs, and interactions happening every day</div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl font-bold text-white mb-2">Built in Public</div>
+                  <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Continuously improving with developer feedback</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Social Proof */}
+          <section className="py-32 px-8 overflow-hidden">
+            <div className="max-w-7xl mx-auto">
+              <div className="relative py-20 bg-surface rounded-[2rem] px-12 md:px-24 overflow-hidden border border-outline-variant/5">
+                <div className="absolute -top-12 -left-12 text-[12rem] font-headline font-extrabold text-white/5 select-none">&ldquo;</div>
+                <div className="relative z-10">
+                  <p className="text-2xl md:text-4xl font-light font-headline text-white leading-relaxed italic mb-12">
+                      &quot;Snipster has fundamentally altered how our engineering team shares tribal knowledge. It&apos;s the first platform that feels as fast as a text editor but as social as a real-world community.&quot;
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
+                      <img className="w-full h-full object-cover object-top" data-alt="Portrait of a professional software engineer with a thoughtful expression in a modern, softly lit tech office environment" src="https://drive.google.com/thumbnail?id=1hJU5KkFsVJVyi5KLArIL-042wqnUKPnA&sz=w200" alt="Sahil Sharma" />
+                    </div>
+                    <div>
+                      <h5 className="text-white font-bold text-sm">Sahil Sharma</h5>
+                      <p className="text-on-surface-variant text-[10px] uppercase tracking-wider">Lead Developer</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Final CTA */}
+          <section className="py-40 px-8 relative overflow-hidden">
+            <div className="absolute inset-0 hero-gradient-custom -z-10"></div>
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-4xl md:text-6xl font-extrabold font-headline text-white mb-10 tracking-tight leading-[1]">
+                  Join the Next Generation <br/>Developer Community
+              </h2>
+              <p className="text-on-surface-variant mb-12 max-w-xl mx-auto text-lg">
+                  The architect is ready for your first commit. Secure your handle today and start building the future of knowledge.
+              </p>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                <Link href="/sign-up" className="cta-gradient text-on-primary-container px-12 py-5 rounded-md font-bold text-sm tracking-widest uppercase shadow-2xl shadow-primary/20 hover:scale-[1.05] transition-all">
+                    Initialize My Account
+                </Link>
+                <span className="text-on-surface-variant text-xs font-mono">Free forever for individuals.</span>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-[#0a0a0a] w-full py-12 px-8 border-t border-[#3A3939]/15">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start">
+            <div className="mb-8 md:mb-0">
+              <span className="text-lg font-bold text-white mb-4 block font-headline">Snipster</span>
+              <p className="font-manrope text-xs text-[#C7C4D7] max-w-xs leading-relaxed mb-4">
+                Built by a developer, for developers. <br/>
+                A place to save code, share knowledge, and grow together.
+              </p>
+              <p className="font-manrope text-xs text-[#C7C4D7]/40 max-w-xs leading-relaxed">&copy; 2026 Snipster.</p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-16 md:gap-24">
+              <div>
+                <h6 className="text-[#C0C1FF] font-bold text-[10px] uppercase tracking-widest mb-6">Explore</h6>
+                <ul className="space-y-4">
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" href="/sign-in">Snippets</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" href="/sign-in">Blogs</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" href="/sign-in">Community</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" href="/sign-in">Tech News</Link></li>
+                </ul>
               </div>
               <div>
-                <div className="text-lg font-black text-[#D2BBFF] tracking-tighter normal-case">Snipster</div>
-                <div className="text-[10px] text-zinc-500 tracking-widest">The Kinetic Archive</div>
+                <h6 className="text-[#C0C1FF] font-bold text-[10px] uppercase tracking-widest mb-6">Connect</h6>
+                <ul className="space-y-4">
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" target="_blank" href="https://github.com/Sahil-Sharma06">GitHub</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" target="_blank" href="https://x.com/Sharmaa_ji06">X</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" target="_blank" href="https://www.linkedin.com/in/sahil-sharma-a735b4247/">LinkedIn</Link></li>
+                  <li><Link className="font-manrope text-xs text-[#C7C4D7] hover:text-[#C0C1FF] transition-colors" target="_blank" href="https://medium.com/@thisisssharma">Medium</Link></li>
+                </ul>
               </div>
             </div>
-            <nav className="flex flex-col gap-1">
-              <Link className="flex items-center gap-3 px-4 py-3 text-[#D2BBFF] bg-[#2A2A2A] rounded-xl ease-out duration-200" href="/">
-                <span className="material-symbols-outlined">dynamic_feed</span>
-                <span>Feed</span>
-              </Link>
-              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
-                <span className="material-symbols-outlined">code</span>
-                <span>Snippets</span>
-              </Link>
-              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
-                <span className="material-symbols-outlined">article</span>
-                <span>Blogs</span>
-              </Link>
-              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
-                <span className="material-symbols-outlined">auto_awesome_motion</span>
-                <span>Collections</span>
-              </Link>
-              <Link className="flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C] transition-all duration-200 rounded-xl" href="/sign-in">
-                <span className="material-symbols-outlined">person</span>
-                <span>Profile</span>
-              </Link>
-            </nav>
-            <Link href="/sign-in" className="mt-8 mx-2 bg-primary-container text-white py-3 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-              <span className="material-symbols-outlined">add</span>
-              <span className="normal-case">Create New</span>
-            </Link>
-          </aside>
-
-          {/* Main Content Area */}
-          <main className="flex-1 md:ml-64 mt-16 px-6 lg:px-12 py-12 bg-surface">
-            {/* Hero Section */}
-            <section className="max-w-6xl mx-auto mb-32 pt-12 text-center md:text-left grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-7">
-                <h1 className="text-5xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
-                  The Kinetic <br />
-                  <span className="text-gradient">Archive</span>
-                </h1>
-                <p className="text-xl text-on-surface-variant leading-relaxed max-w-xl mb-10 font-light">
-                  Elevate your technical assets. A premium editorial experience for developers to store, share, and discover high-impact code snippets and technical insights.
-                </p>
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <Link href="/sign-up" className="bg-primary-container text-white px-8 py-4 rounded-full font-bold flex items-center gap-2 shadow-lg hover:shadow-primary-container/20 transition-all">
-                    Start Snipping
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </Link>
-                  <Link href="/sign-in" className="bg-surface-container-high border border-outline-variant/20 px-8 py-4 rounded-full font-bold text-on-surface hover:bg-surface-container-highest transition-all flex items-center">
-                    Explore Feed
-                  </Link>
-                </div>
-
-                <div className="mt-16 flex gap-12 justify-center md:justify-start border-t border-white/5 pt-12">
-                  <div>
-                    <div className="text-3xl font-black text-on-surface">42K+</div>
-                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Snippets</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-black text-on-surface">1.2M</div>
-                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Monthly Views</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-black text-on-surface">8.5K</div>
-                    <div className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Contributors</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Glass Cards */}
-              <div className="lg:col-span-5 relative h-[500px]">
-                <div className="absolute top-0 right-0 w-full h-full bg-primary/10 rounded-[3rem] blur-3xl opacity-30"></div>
-
-                <div className="absolute top-4 -left-4 md:-left-12 z-20 w-80 bg-surface-container-high/80 glass p-6 rounded-[2rem] shadow-2xl border border-white/5 rotate-[-2deg]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-error"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#e6ecff]"></div>
-                    <div className="w-3 h-3 rounded-full bg-primary"></div>
-                  </div>
-                  <div className="font-mono text-xs leading-relaxed overflow-hidden whitespace-pre">
-                    <span className="vsc-keyword">async function</span> <span className="vsc-func">fetchArchive</span>() {"{"}<br />
-                    {"  "}<span className="vsc-keyword">const</span> data = <span className="vsc-keyword">await</span> kinetic.get();<br />
-                    {"  "}<span className="vsc-keyword">return</span> data.map(s =&gt; s.animate());<br />
-                    {"}"}
-                  </div>
-                </div>
-
-                <div className="absolute bottom-10 right-0 z-10 w-80 bg-[#1B1B1C]/90 glass p-0 rounded-[1.5rem] overflow-hidden shadow-2xl border border-white/5 rotate-[4deg]">
-                  <img className="w-full h-40 object-cover opacity-80" alt="Abstract shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw2KeCLrpGyo9HUwf_8CbKa2zGhwFw_I6DYfS0bRwpK0MoqxPOVEy_swXWUvMmUmjLUp34aVKikR5lZJ__EMFyOztu9OB1_LWpybQSZl16ejfZ8CeTH_QwWWDBvu8CWBdyYhlDNmoB9NczZqYgGMRC7er_lrev_lv5LBoxeRkHMGEsbYW_ncUsfQELQPOr_o-7pkkyzuV4TImNquf6tSZSDrUYQ-VhZjeltcPVMHC8DRPiW5ybmme32Q2fVX1LsQ5UNy4N3A6-Zm8J" />
-                  <div className="p-6">
-                    <div className="text-[10px] uppercase tracking-widest text-primary font-black mb-2">Editorial</div>
-                    <h3 className="text-lg font-bold leading-tight mb-2">The Future of Kinetic Syntax</h3>
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-full bg-zinc-700"></div>
-                      <span className="text-[10px] text-zinc-400">by Marcus Kane</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Featured Content Grid */}
-            <section className="max-w-6xl mx-auto mb-32">
-              <div className="flex justify-between items-end mb-12">
-                <div>
-                  <h2 className="text-4xl font-black tracking-tight mb-2">Editor&apos;s Choice</h2>
-                  <p className="text-on-surface-variant font-light">Curated technical masterpieces from the archive.</p>
-                </div>
-                <button className="text-primary font-bold flex items-center gap-1 hover:gap-3 transition-all">
-                  View All <span className="material-symbols-outlined">trending_flat</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {/* Large Blog Card */}
-                <div className="md:col-span-4 lg:col-span-4 h-[450px] relative rounded-[2rem] overflow-hidden group bg-surface-container">
-                  <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="Dark abstract wallpaper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARjFX4FFyxIB6nafZmTxsGlD9RLedaCZb8DYumlh8e_aVlk6KIyojGwrNf7smDy0cNbAKPkaQRgkMiSCDB98xnCQ0VVjVnPTvWSJsWWfdPUeADFqHRv32Wv4j-UiCOFhy0FZGqg-lzOakMYI3M7Lc1bFfwu3kRRC1OyKRIrFq-SAu5sN8L1jzMUq6N-ZvHlNGUp19k1lVZ3Q606dY_b9Z6hO_3_7lV0ytqOOAhO3G5TSWENE6_BUMT7XLrYju5lOu9S7kvMmpNNuMS" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-0 p-10">
-                    <span className="inline-block px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-black tracking-widest uppercase mb-4">Must Read</span>
-                    <h3 className="text-4xl font-black text-white leading-tight mb-4">Building Reactive State with Zero Dependency</h3>
-                    <p className="text-zinc-400 max-w-md mb-6 leading-relaxed">Discover how to leverage internal event buses for lean, mean state management in modern JS applications.</p>
-                    <button className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full text-sm font-bold text-white">Read Article</button>
-                  </div>
-                </div>
-
-                {/* Code Snippet Bento 1 */}
-                <div className="md:col-span-2 lg:col-span-2 bg-surface-container-high rounded-[2rem] p-8 flex flex-col justify-between border border-white/5">
-                  <div>
-                    <span className="material-symbols-outlined text-primary mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-                    <h4 className="text-xl font-bold mb-2">CSS Layout Hack</h4>
-                    <p className="text-zinc-500 text-sm mb-4">The ultimate 1-line centering with modern CSS grid.</p>
-                  </div>
-                  <div className="bg-surface-container-lowest p-4 rounded-xl font-mono text-xs text-on-surface-variant border border-white/5 whitespace-pre">
-                    <span className="vsc-keyword">display</span>: grid;<br />
-                    <span className="vsc-keyword">place-content</span>: center;
-                  </div>
-                </div>
-
-                {/* Small Stat Card */}
-                <div className="md:col-span-2 lg:col-span-2 bg-primary-container p-8 rounded-[2rem] flex flex-col justify-center items-center text-center">
-                  <div className="text-5xl font-black text-white mb-2">99%</div>
-                  <p className="text-white/80 text-sm font-bold tracking-tight">Performance Score on <br />all archived snippets</p>
-                </div>
-
-                {/* Mini Blog Feed */}
-                <div className="md:col-span-4 lg:col-span-4 bg-surface-container rounded-[2rem] p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center border border-white/5">
-                  <div className="space-y-6">
-                    <div className="group cursor-pointer">
-                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Snippet Collection</div>
-                      <h5 className="text-lg font-bold group-hover:text-primary transition-colors">Python Data Science Essentials</h5>
-                    </div>
-                    <div className="group cursor-pointer">
-                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Deep Dive</div>
-                      <h5 className="text-lg font-bold group-hover:text-primary transition-colors">Rust Memory Safety 101</h5>
-                    </div>
-                  </div>
-                  <div className="hidden md:block">
-                    <img className="rounded-[1.5rem] w-full h-32 object-cover grayscale opacity-50" alt="Code lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaEn38ReLuYdnRG0T2fBZXHbvi9LrrS902I-ilIGCzDY6fTT6juPb4XcjyhRmVIeZmMz0YJvnqBD4N12VK3uDjAWUIt7hVUVuJP7V3qejNEgGfSIt3m4o4oIyb0qe47LhsfxXIJqfQF0CV_7ydW-Z4QjnjgVyI2P5QUzysChS1z8_GeOaJUsPYLlP10Hq96XFZ6PK1CA63Xa0dFruo0x0Ff81qsGyJ8CWX5sRBAGN3rVgJ7pYE32kSLfID8mYqoQ6ETYHB4pZtEaAb" />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="max-w-6xl mx-auto pt-24 pb-12 border-t border-white/5">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-20">
-                <div className="col-span-2 md:col-span-1">
-                  <div className="text-2xl font-black tracking-tighter text-[#D2BBFF] mb-6">Snipster</div>
-                  <p className="text-zinc-500 text-sm leading-relaxed mb-8">Curating the future of technical knowledge through kinetic archiving.</p>
-                  <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 cursor-pointer transition-colors">
-                      <span className="material-symbols-outlined text-sm">share</span>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 cursor-pointer transition-colors">
-                      <span className="material-symbols-outlined text-sm">public</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Platform</h6>
-                  <ul className="space-y-4 text-zinc-500 text-sm">
-                    <li><Link className="hover:text-primary transition-colors" href="#">All Snippets</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">Technical Blogs</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">Collections</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">API Docs</Link></li>
-                  </ul>
-                </div>
-                <div>
-                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Company</h6>
-                  <ul className="space-y-4 text-zinc-500 text-sm">
-                    <li><Link className="hover:text-primary transition-colors" href="#">About</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">Careers</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">Privacy</Link></li>
-                    <li><Link className="hover:text-primary transition-colors" href="#">Terms</Link></li>
-                  </ul>
-                </div>
-                <div>
-                  <h6 className="text-[10px] uppercase tracking-[0.2em] font-black text-white mb-6">Newsletter</h6>
-                  <p className="text-zinc-500 text-xs mb-4">Stay updated with the best snippets weekly.</p>
-                  <div className="relative">
-                    <input className="w-full bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs focus:ring-1 focus:ring-primary focus:border-transparent outline-none" placeholder="Email address" type="email" />
-                    <button className="absolute right-2 top-1.5 text-primary">
-                      <span className="material-symbols-outlined">send</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-white/5">
-                <p className="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">© 2024 SNIPSTER THE KINETIC ARCHIVE. ALL RIGHTS RESERVED.</p>
-                <div className="flex gap-6 text-[10px] text-zinc-600 uppercase tracking-widest font-bold">
-                  <a className="hover:text-white transition-colors" href="#">Twitter</a>
-                  <a className="hover:text-white transition-colors" href="#">GitHub</a>
-                  <a className="hover:text-white transition-colors" href="#">Discord</a>
-                </div>
-              </div>
-            </footer>
-          </main>
-        </div>
-
-        {/* Mobile Bottom Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-surface-container/90 backdrop-blur-xl border-t border-white/5 px-6 h-16 flex items-center justify-between z-50">
-          <Link href="/" className="text-primary flex flex-col items-center gap-1">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dynamic_feed</span>
-            <span className="text-[10px] font-bold">FEED</span>
-          </Link>
-          <Link href="/snippets" className="text-zinc-500 flex flex-col items-center gap-1">
-            <span className="material-symbols-outlined">code</span>
-            <span className="text-[10px] font-bold">SNIPS</span>
-          </Link>
-          <Link href="/sign-in" className="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center -mt-8 shadow-lg shadow-primary-container/40">
-            <span className="material-symbols-outlined text-white">add</span>
-          </Link>
-          <Link href="/blogs" className="text-zinc-500 flex flex-col items-center gap-1">
-            <span className="material-symbols-outlined">article</span>
-            <span className="text-[10px] font-bold">BLOGS</span>
-          </Link>
-          <Link href="/sign-in" className="text-zinc-500 flex flex-col items-center gap-1">
-            <span className="material-symbols-outlined">person</span>
-            <span className="text-[10px] font-bold">PROFILE</span>
-          </Link>
-        </nav>
+          </div>
+        </footer>
       </div>
     </>
   )
