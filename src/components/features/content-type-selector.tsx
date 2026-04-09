@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutGrid, Code2, FileText } from "lucide-react"
+import { LayoutGrid, Code2, FileText, type LucideIcon } from "lucide-react"
 
 export type ContentType = "all" | "snippets" | "blogs"
 
@@ -11,7 +11,7 @@ interface ContentTypeSelectorProps {
   activeType: ContentType
 }
 
-const TYPES: { id: ContentType; label: string; icon: React.ElementType }[] = [
+const TYPES: { id: ContentType; label: string; icon: LucideIcon }[] = [
   { id: "all", label: "All", icon: LayoutGrid },
   { id: "snippets", label: "Snippets", icon: Code2 },
   { id: "blogs", label: "Blogs", icon: FileText },

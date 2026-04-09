@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Clock, Flame, Eye, MessageCircle } from "lucide-react"
+import { Clock, Flame, Eye, MessageCircle, type LucideIcon } from "lucide-react"
 
 export type SortOption = "latest" | "popular" | "viewed" | "discussed"
 
@@ -12,7 +12,7 @@ interface SortSelectorProps {
   basePath?: string
 }
 
-const SORT_OPTIONS: { id: SortOption; label: string; icon: React.ElementType }[] = [
+const SORT_OPTIONS: { id: SortOption; label: string; icon: LucideIcon }[] = [
   { id: "latest", label: "Latest", icon: Clock },
   { id: "popular", label: "Most Liked", icon: Flame },
   { id: "viewed", label: "Most Viewed", icon: Eye },
