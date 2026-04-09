@@ -4,6 +4,9 @@ import { redirect } from "next/navigation"
 import { CardSpotlight } from "@/components/ui/card-spotlight"
 import { HeroLamp } from "@/components/shared/hero-lamp"
 import { TypingCodeBlock } from "@/components/shared/typing-code-block"
+import { TypingQuote } from "@/components/shared/typing-quote"
+import { ScrollReveal } from "@/components/shared/scroll-reveal"
+import { ScrollSlide } from "@/components/shared/scroll-slide"
 
 export default async function Home() {
   const user = await currentUser()
@@ -14,7 +17,8 @@ export default async function Home() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
         
         .hero-gradient-custom {
@@ -31,11 +35,11 @@ export default async function Home() {
         }
         
         /* Font Family Variables mappings as expected by classNames */
-        .font-headline { font-family: 'Manrope', sans-serif; }
+        .font-headline { font-family: 'Satoshi', 'Inter', sans-serif; }
         .font-body { font-family: 'Inter', sans-serif; }
         .font-label { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .font-manrope { font-family: 'Satoshi', 'Inter', sans-serif; }
       `}} />
       <div className="bg-[#0a0a0a] text-[#e5e2e1] font-body selection:bg-primary selection:text-on-primary min-h-screen">
         {/* TopNavBar */}
@@ -61,7 +65,7 @@ export default async function Home() {
 
           {/* Problem/Solution */}
           <section className="py-32 px-8">
-            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-24 items-center">
+            <ScrollReveal className="max-w-7xl mx-auto grid md:grid-cols-2 gap-24 items-center">
               <div className="space-y-12">
                 <h2 className="text-3xl font-bold font-headline text-white leading-tight">The Fragmented <br/>Developer Experience</h2>
                 <div className="space-y-8">
@@ -101,12 +105,12 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
 
           {/* Feature Grid (Bento) */}
           <section className="py-32 bg-surface-container-low px-8">
-            <div className="max-w-7xl mx-auto">
+            <ScrollReveal className="max-w-7xl mx-auto">
               <div className="mb-20">
                 <span className="text-primary font-mono text-xs tracking-widest uppercase mb-4 block">Core Infrastructure</span>
                 <h2 className="text-4xl font-extrabold font-headline text-white">Built for High-Level Logic</h2>
@@ -114,63 +118,71 @@ export default async function Home() {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Snippets */}
-                <div className="md:col-span-2 bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
-                  <span className="material-symbols-outlined text-primary mb-6 text-3xl">code</span>
-                  <h3 className="text-xl font-bold text-white mb-3">Snippet Management</h3>
-                  <p className="text-on-surface-variant text-sm mb-8 max-w-md">Version-controlled, cloud-synced snippets with full syntax highlighting for 100+ languages.</p>
-                  <img className="w-full h-48 object-cover rounded-md grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close up of a computer screen displaying high-contrast source code with vibrant syntax highlighting in a dark environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz4Q_lFioQQw1n6HB5wtwajhrUbiH0uMnKb672igY2SimEu4L82HkRBzgjKHILY2CSO_B9QXgis4ue_sLLR5IBRewv2g1Aeu5UAJ4VNDIPFTO9En2dDf6mKVz9x3io0a4aPPj9TI30Icxr7TCgFguqZ_0kCOyPAsBAhlxzBwYjpa0u4bF9FLy9wrbFyJtqM8JvmyM-mt9K3167HYa5sK7XJHqTM8tLWlbZxT60vgwUIj9ARCGvSMokw8eg_IFWaZ4vjo-8SF_xo0Q" alt="Snippets demo" />
-                </div>
+                <ScrollSlide direction="left" className="md:col-span-2">
+                  <div className="bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+                    <span className="material-symbols-outlined text-primary mb-6 text-3xl">code</span>
+                    <h3 className="text-xl font-bold text-white mb-3">Snippet Management</h3>
+                    <p className="text-on-surface-variant text-sm mb-8 max-w-md">Version-controlled, cloud-synced snippets with full syntax highlighting for 100+ languages.</p>
+                    <img className="w-full h-48 object-cover rounded-md grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close up of a computer screen displaying high-contrast source code with vibrant syntax highlighting in a dark environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz4Q_lFioQQw1n6HB5wtwajhrUbiH0uMnKb672igY2SimEu4L82HkRBzgjKHILY2CSO_B9QXgis4ue_sLLR5IBRewv2g1Aeu5UAJ4VNDIPFTO9En2dDf6mKVz9x3io0a4aPPj9TI30Icxr7TCgFguqZ_0kCOyPAsBAhlxzBwYjpa0u4bF9FLy9wrbFyJtqM8JvmyM-mt9K3167HYa5sK7XJHqTM8tLWlbZxT60vgwUIj9ARCGvSMokw8eg_IFWaZ4vjo-8SF_xo0Q" alt="Snippets demo" />
+                  </div>
+                </ScrollSlide>
 
                 {/* Blogging */}
-                <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10 flex flex-col justify-between">
-                  <div className="relative z-20">
-                    <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">edit_note</span>
-                    <h3 className="text-xl font-bold text-white mb-3">Developer Blogging</h3>
-                    <p className="text-on-surface-variant text-sm">Markdown-first editorial experience designed for technical long-form content.</p>
-                  </div>
-                  <div className="mt-8 pt-8 border-t border-outline-variant/20 relative z-20">
-                    <span className="text-primary text-xs font-mono">0.05ms READ TIME</span>
-                  </div>
-                </CardSpotlight>
+                <ScrollSlide direction="right">
+                  <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10 flex flex-col justify-between">
+                    <div className="relative z-20">
+                      <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">edit_note</span>
+                      <h3 className="text-xl font-bold text-white mb-3">Developer Blogging</h3>
+                      <p className="text-on-surface-variant text-sm">Markdown-first editorial experience designed for technical long-form content.</p>
+                    </div>
+                    <div className="mt-8 pt-8 border-t border-outline-variant/20 relative z-20">
+                      <span className="text-primary text-xs font-mono">0.05ms READ TIME</span>
+                    </div>
+                  </CardSpotlight>
+                </ScrollSlide>
 
                 {/* Social */}
-                <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10">
-                  <div className="relative z-20">
-                    <span className="material-symbols-outlined text-primary mb-6 text-3xl">hub</span>
-                    <h3 className="text-xl font-bold text-white mb-3">Architectural Social</h3>
-                    <p className="text-on-surface-variant text-sm">Connect with peers through a thread-based system optimized for code review and feedback.</p>
-                  </div>
-                </CardSpotlight>
+                <ScrollSlide direction="right">
+                  <CardSpotlight className="bg-black p-8 rounded-xl border border-outline-variant/10">
+                    <div className="relative z-20">
+                      <span className="material-symbols-outlined text-primary mb-6 text-3xl">hub</span>
+                      <h3 className="text-xl font-bold text-white mb-3">Architectural Social</h3>
+                      <p className="text-on-surface-variant text-sm">Connect with peers through a thread-based system optimized for code review and feedback.</p>
+                    </div>
+                  </CardSpotlight>
+                </ScrollSlide>
 
                 {/* Engagement & Discovery */}
-                <div className="md:col-span-2 bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all grid md:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">explore</span>
-                    <h3 className="text-xl font-bold text-white mb-3">Tech News &amp; Discovery</h3>
-                    <p className="text-on-surface-variant text-sm">Aggregated news from top engineering blogs and real-time discovery of trending repositories.</p>
+                <ScrollSlide direction="left" className="md:col-span-2">
+                  <div className="bg-surface p-8 rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-all grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                      <span className="material-symbols-outlined text-tertiary mb-6 text-3xl">explore</span>
+                      <h3 className="text-xl font-bold text-white mb-3">Tech News &amp; Discovery</h3>
+                      <p className="text-on-surface-variant text-sm">Aggregated news from top engineering blogs and real-time discovery of trending repositories.</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                        <span className="material-symbols-outlined text-primary/40">rocket</span>
+                      </div>
+                      <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                        <span className="material-symbols-outlined text-primary/40">newspaper</span>
+                      </div>
+                      <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                        <span className="material-symbols-outlined text-primary/40">monitoring</span>
+                      </div>
+                      <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
+                        <span className="material-symbols-outlined text-primary/40">groups</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
-                      <span className="material-symbols-outlined text-primary/40">rocket</span>
-                    </div>
-                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
-                      <span className="material-symbols-outlined text-primary/40">newspaper</span>
-                    </div>
-                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
-                      <span className="material-symbols-outlined text-primary/40">monitoring</span>
-                    </div>
-                    <div className="aspect-square bg-surface-container-lowest rounded flex items-center justify-center border border-outline-variant/10">
-                      <span className="material-symbols-outlined text-primary/40">groups</span>
-                    </div>
-                  </div>
-                </div>
+                </ScrollSlide>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
 
           {/* How It Works */}
           <section className="py-32 px-8">
-            <div className="max-w-7xl mx-auto">
+            <ScrollReveal className="max-w-7xl mx-auto">
               <div className="text-center mb-24">
                 <h2 className="text-4xl font-extrabold font-headline text-white mb-4">How Snipster Works</h2>
                 <p className="text-on-surface-variant max-w-xl mx-auto">From saving code to sharing knowledge — everything in one simple flow.</p>
@@ -212,45 +224,52 @@ export default async function Home() {
                   <p className="text-xs text-on-surface-variant leading-relaxed">Follow developers, explore new ideas, and stay updated with the latest in tech.</p>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
 
           {/* Value Prop */}
           <section className="py-32 bg-[#0E0E0E] border-y border-outline-variant/10">
-            <div className="max-w-4xl mx-auto px-8 text-center">
+            <ScrollReveal className="max-w-4xl mx-auto px-8 text-center">
               <span className="text-tertiary font-mono text-xs tracking-widest mb-8 block">THE SNIPSTER ADVANTAGE</span>
-              <h2 className="text-4xl md:text-6xl font-extrabold font-headline text-white leading-[1.1] mb-12">
-                  One architectural monolith. <br/>Infinite developer <span className="text-primary">synergy.</span>
-              </h2>
-              <p className="text-on-surface-variant text-lg leading-relaxed mb-16">
-                  Stop searching through history. Stop switching tabs. Snipster is designed to be the background process of your professional life—quiet, efficient, and always ready to serve the right logic at the right time.
-              </p>
+              <ScrollSlide direction="right" offset={120} duration={0.45}>
+                <h2 className="text-4xl md:text-6xl font-extrabold font-headline text-white leading-[1.1] mb-12">
+                    One architectural monolith. <br/>Infinite developer <span className="text-primary">synergy.</span>
+                </h2>
+              </ScrollSlide>
+              <ScrollSlide direction="left" offset={120} duration={0.45}>
+                <p className="text-on-surface-variant text-lg leading-relaxed mb-16">
+                    Stop searching through history. Stop switching tabs. Snipster is designed to be the background process of your professional life—quiet, efficient, and always ready to serve the right logic at the right time.
+                </p>
+              </ScrollSlide>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12 border-t border-outline-variant/10 text-center">
-                <div className="flex flex-col items-center">
+                <div className="beam-border flex flex-col items-center">
                   <div className="text-xl font-bold text-white mb-2">Early Access</div>
                   <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Join a growing developer community</div>
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="beam-border flex flex-col items-center">
                   <div className="text-xl font-bold text-white mb-2">Real Usage</div>
                   <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Snippets, blogs, and interactions happening every day</div>
                 </div>
-                <div className="flex flex-col items-center">
+                <div className="beam-border flex flex-col items-center">
                   <div className="text-xl font-bold text-white mb-2">Built in Public</div>
                   <div className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">Continuously improving with developer feedback</div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
 
           {/* Social Proof */}
           <section className="py-32 px-8 overflow-hidden">
-            <div className="max-w-7xl mx-auto">
+            <ScrollReveal className="max-w-7xl mx-auto">
               <div className="relative py-20 bg-surface rounded-[2rem] px-12 md:px-24 overflow-hidden border border-outline-variant/5">
                 <div className="absolute -top-12 -left-12 text-[12rem] font-headline font-extrabold text-white/5 select-none">&ldquo;</div>
                 <div className="relative z-10">
-                  <p className="text-2xl md:text-4xl font-light font-headline text-white leading-relaxed italic mb-12">
-                      &quot;Snipster has fundamentally altered how our engineering team shares tribal knowledge. It&apos;s the first platform that feels as fast as a text editor but as social as a real-world community.&quot;
-                  </p>
+                  <TypingQuote
+                    text="Snipster is how I believe developers should build, share, and grow — in one place."
+                    className="text-2xl md:text-4xl font-light font-mono text-white leading-relaxed italic mb-12"
+                    typingSpeedMs={50}
+                    startDelayMs={300}
+                  />
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
                       <img className="w-full h-full object-cover object-top" data-alt="Portrait of a professional software engineer with a thoughtful expression in a modern, softly lit tech office environment" src="https://drive.google.com/thumbnail?id=1hJU5KkFsVJVyi5KLArIL-042wqnUKPnA&sz=w200" alt="Sahil Sharma" />
@@ -262,13 +281,13 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
 
           {/* Final CTA */}
           <section className="py-40 px-8 relative overflow-hidden">
             <div className="absolute inset-0 hero-gradient-custom -z-10"></div>
-            <div className="max-w-4xl mx-auto text-center">
+            <ScrollReveal className="max-w-4xl mx-auto text-center">
               <h2 className="text-4xl md:text-6xl font-extrabold font-headline text-white mb-10 tracking-tight leading-[1]">
                   Join the Next Generation <br/>Developer Community
               </h2>
@@ -276,12 +295,12 @@ export default async function Home() {
                   The architect is ready for your first commit. Secure your handle today and start building the future of knowledge.
               </p>
               <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                <Link href="/sign-up" className="cta-gradient text-on-primary-container px-12 py-5 rounded-md font-bold text-sm tracking-widest uppercase shadow-2xl shadow-primary/20 hover:scale-[1.05] transition-all">
-                    Initialize My Account
+                <Link href="/sign-up" className="beam-button px-12 py-5 rounded-md font-bold text-sm tracking-widest uppercase hover:scale-[1.05] transition-transform">
+                  <span>Initialize My Account</span>
                 </Link>
                 <span className="text-on-surface-variant text-xs font-mono">Free forever for individuals.</span>
               </div>
-            </div>
+            </ScrollReveal>
           </section>
         </main>
 
