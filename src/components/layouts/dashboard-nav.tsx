@@ -2,15 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
-  { name: "Feed", href: "/feed", icon: "dynamic_feed" },
-  { name: "Snippets", href: "/my-snippets", icon: "code" },
-  { name: "Blogs", href: "/my-blogs", icon: "article" },
-  { name: "Collections", href: "/collections", icon: "auto_awesome_motion" },
-  { name: "Search", href: "/search", icon: "search" },
-  { name: "Profile", href: "/profile", icon: "person" },
+  { name: "My Snippets", href: "/my-snippets", icon: "code" },
+  { name: "My Blogs", href: "/my-blogs", icon: "article" },
+  { name: "Community Feed", href: "/feed", icon: "group" },
 ]
 
 export function DashboardNav() {
@@ -18,47 +16,57 @@ export function DashboardNav() {
 
   return (
     <>
-      <div className="flex items-center gap-3 px-2 py-4 mb-4">
-        <div className="w-10 h-10 bg-gradient-to-br from-[#d2bbff] to-[#7c3aed] rounded-xl flex items-center justify-center shadow-lg">
-          <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-        </div>
+      <div className="flex items-center gap-3 mb-10 px-2">
+        <Image
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWOQbf2fVnBsky36ykjRC2bjLPSxndai9M-nJmk4Dd-veLkXVgc-gfwbM20vaZHPiHM--97P1r6zD7-RoE21quwQF2dwKjQuhBhcVcZ5EqODJkj5sZ__PvfvwIEgGN8HWyN_5qCD8Ar5vAqTID1cZrX-oMwRXSnL4xsNH99CAKXDBrQ4cX6EW2SyvNfEQQ_V_EwGNRcqS5wKxhCkDnD75M_hRgyUjT3E1V1S5AGBrKPJ1KQoHd0ik5qUfGIhEhNhUIxTvCLkIG8c8"
+          alt="Snipster Logo"
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-lg"
+        />
         <div>
-          <div className="text-lg font-black text-[#D2BBFF] tracking-tighter normal-case leading-none">Snipster</div>
-          <div className="text-[10px] text-zinc-500 tracking-widest leading-none mt-1 uppercase">The Kinetic Archive</div>
+          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Snipster</h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60 font-medium">Developer Workspace</p>
         </div>
       </div>
-      
-      <nav className="flex flex-col gap-1 flex-1 overflow-y-auto hide-scrollbar">
+
+      <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && item.href !== "/feed" && item.href !== "/snippets" && item.href !== "/blogs" && item.href !== "/collections" && item.href !== "/profile" && item.href !== "/search" && pathname.startsWith(item.href))
-            || (item.href === "/dashboard" && pathname === item.href)
-            || (item.href !== "/dashboard" && pathname.startsWith(item.href)) // refined logic
-          
-          const activeCond = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+          const isActive = pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href))
 
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 rounded-xl ${
-                activeCond 
-                  ? "text-[#D2BBFF] bg-[#2A2A2A] ease-out" 
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-[#1B1B1C]"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-headline text-sm transition-all active:scale-95 ${
+                isActive
+                  ? "text-[#C0C1FF] font-bold bg-surface-container-high"
+                  : "text-[#C7C4D7] font-medium hover:bg-[#2A2A2A]"
               }`}
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: activeCond ? "'FILL' 1" : "'FILL' 0" }}>{item.icon}</span>
-              <span>{item.name}</span>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>
+                {item.icon}
+              </span>
+              {item.name}
             </Link>
           )
         })}
       </nav>
 
-      <Link href="/snippets/new" className="mt-8 mx-2 bg-[#7c3aed] text-white py-3 rounded-full flex items-center justify-center gap-2 hover:opacity-90 transition-opacity mb-24 shadow-lg shadow-[#7c3aed]/20">
-        <span className="material-symbols-outlined">add</span>
-        <span className="normal-case text-xs uppercase tracking-widest font-bold">Create New</span>
-      </Link>
+      <div className="mt-auto">
+        <Link
+          href="/settings"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-headline text-sm transition-colors ${
+            pathname === "/settings"
+              ? "text-[#C0C1FF] font-bold bg-surface-container-high"
+              : "text-[#C7C4D7] font-medium hover:bg-[#2A2A2A]"
+          }`}
+        >
+          <span className="material-symbols-outlined">settings</span>
+          Settings
+        </Link>
+      </div>
     </>
   )
 }

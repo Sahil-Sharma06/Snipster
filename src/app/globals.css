@@ -221,6 +221,18 @@
   background-clip: text;
 }
 
+.gradient-button {
+  background: linear-gradient(135deg, #c0c1ff 0%, #8083ff 100%);
+}
+
+.glass-nav {
+  backdrop-filter: blur(20px);
+}
+
+.border-subtle {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .hero-gradient {
   background: radial-gradient(
     ellipse 80% 50% at 50% -20%,
