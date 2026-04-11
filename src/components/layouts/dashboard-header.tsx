@@ -6,7 +6,7 @@ import { NotificationBell } from "@/components/features/notification-bell"
 
 export function DashboardHeader() {
   return (
-    <header className="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 flex justify-between items-center h-16 px-8 bg-[#131313]/70 backdrop-blur-xl border-b border-white/5">
+    <header className="fixed top-0 right-0 w-full md:w-[calc(100%-6rem)] z-40 flex justify-between items-center h-16 px-6 md:px-8 bg-[#131313]/70 backdrop-blur-xl border-b border-white/5">
       <div className="flex items-center flex-1 max-w-xl">
         <div className="relative w-full group">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
@@ -22,9 +22,15 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-4 ml-8">
-        <Link href="/notifications" className="p-2 text-[#C7C4D7] hover:text-white transition-colors">
-          <span className="material-symbols-outlined">notifications</span>
+        <Link
+          href="/snippets/new"
+          className="w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary flex items-center justify-center transition-colors"
+          aria-label="Create snippet"
+          title="Create snippet"
+        >
+          <span className="material-symbols-outlined text-[20px] leading-none">add</span>
         </Link>
+        <NotificationBell />
         <div className="flex items-center gap-3 pl-4 border-l border-white/10">
           <div className="h-8 w-8 rounded-full flex items-center justify-center border-subtle overflow-hidden">
             <UserButton

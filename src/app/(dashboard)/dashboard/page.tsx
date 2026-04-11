@@ -104,52 +104,47 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4)
 
   return (
-    <div>
+    <div className="dashboard-fade-up font-body">
       {/* Welcome Header */}
-      <header className="mb-12">
-        <h2 className="text-4xl font-headline font-extrabold tracking-tight text-white mb-2">
+      <header className="mb-16 dashboard-fade-up dashboard-delay-1 pt-2 md:pt-3">
+        <h2 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tight leading-[1.1] dashboard-title-gradient mb-4 pb-1">
           {greeting}, {firstName}.
         </h2>
-        <p className="text-on-surface-variant font-headline text-lg tracking-tight">
-          Your monolith is initialized.
-        </p>
+
       </header>
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="bg-surface-container-low p-6 rounded-xl border-subtle">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-1">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Snippets
           </p>
           <div className="flex items-end justify-between">
-            <span className="text-4xl font-headline font-bold text-white">{snippetCount}</span>
-            <span className="text-[#C0C1FF] text-xs font-medium flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">trending_up</span>
-              {totalViews > 0 ? `+${formatNumber(totalViews)}` : "New"}
-            </span>
+            <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{snippetCount}</span>
+            <span className="material-symbols-outlined text-sm text-[#d7dcff] dashboard-icon-arrow-rise">trending_up</span>
           </div>
         </div>
 
-        <div className="bg-surface-container-low p-6 rounded-xl border-subtle">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-2">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Views
           </p>
           <div className="flex items-end justify-between">
-            <span className="text-4xl font-headline font-bold text-white">{formatNumber(totalViews)}</span>
-            <span className="text-[#C0C1FF] text-xs font-medium flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">visibility</span> Live
+            <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{formatNumber(totalViews)}</span>
+            <span className="text-[#d7dcff] text-xs font-medium flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm dashboard-icon-eye-blink">visibility</span> Live
             </span>
           </div>
         </div>
 
-        <div className="bg-surface-container-low p-6 rounded-xl border-subtle">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-3">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Saves
           </p>
           <div className="flex items-end justify-between">
-            <span className="text-4xl font-headline font-bold text-white">{totalSaves}</span>
+            <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{totalSaves}</span>
             <div className="h-10 w-10 rounded-full bg-[#C0C1FF]/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#C0C1FF]">auto_awesome</span>
+              <span className="material-symbols-outlined text-[#C0C1FF] dashboard-icon-sparkle">auto_awesome</span>
             </div>
           </div>
         </div>
@@ -159,21 +154,19 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-12 gap-8 items-start">
         {/* Left Column: Community Spotlight */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-headline font-bold text-white">Community Spotlight</h3>
+          <div className="flex items-center justify-between mb-2 dashboard-fade-up dashboard-delay-1">
+            <h3 className="text-xl font-headline font-bold text-[#eef1ff]">Community Spotlight</h3>
             <Link href="/feed" className="text-xs font-medium text-[#C0C1FF] hover:underline">
               View All Activity
             </Link>
           </div>
-
           {feedItems.length === 0 ? (
-            <div className="bg-surface-container p-8 rounded-xl border-subtle text-center">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">dynamic_feed</span>
+            <div className="bg-surface-container p-8 rounded-xl border-subtle text-center dashboard-card dashboard-fade-up dashboard-delay-2">
               <p className="text-on-surface-variant text-sm">No community activity yet. Be the first to share!</p>
             </div>
           ) : (
             feedItems.map((item) => (
-              <article key={`${item.kind}-${item.id}`} className="bg-surface-container p-8 rounded-xl border-subtle">
+              <article key={`${item.kind}-${item.id}`} className="bg-surface-container p-8 rounded-xl border-subtle dashboard-card dashboard-fade-up dashboard-delay-2">
                 <div className="flex items-center gap-4 mb-6">
                   {item.author.image ? (
                     <img
@@ -187,7 +180,7 @@ export default async function DashboardPage() {
                     </div>
                   )}
                   <div>
-                    <h4 className="text-sm font-bold text-white">{item.author.name || item.author.username}</h4>
+                    <h4 className="text-sm font-bold text-[#edf0ff]">{item.author.name || item.author.username}</h4>
                     <p className="text-[11px] text-on-surface-variant uppercase tracking-wider">
                       {item.kind === "snippet" ? "Shared a snippet" : "Published an article"}
                     </p>
@@ -197,7 +190,7 @@ export default async function DashboardPage() {
                   </span>
                 </div>
 
-                <p className="font-body text-on-surface mb-6 leading-relaxed">
+                <p className="font-body text-[#cfd5e6] mb-6 leading-relaxed">
                   {item.kind === "snippet"
                     ? (item as any).description || `Shared a ${((item as any).language || "").toLowerCase()} snippet: ${item.title}`
                     : (item as any).excerpt || item.title
@@ -215,24 +208,24 @@ export default async function DashboardPage() {
                 <div className="flex items-center gap-6">
                   <Link
                     href={item.kind === "snippet" ? `/snippets/${item.id}` : `/blogs/${(item as any).slug || item.id}`}
-                    className="flex items-center gap-2 text-xs text-on-surface-variant hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-xs text-on-surface-variant hover:text-[#eef1ff] transition-colors"
                   >
                     <span className="material-symbols-outlined text-lg">favorite</span>
                     {item._count.likes}
                   </Link>
                   <Link
                     href={item.kind === "snippet" ? `/snippets/${item.id}` : `/blogs/${(item as any).slug || item.id}`}
-                    className="flex items-center gap-2 text-xs text-on-surface-variant hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-xs text-on-surface-variant hover:text-[#eef1ff] transition-colors"
                   >
                     <span className="material-symbols-outlined text-lg">chat_bubble</span>
                     {item._count.comments}
                   </Link>
                   <Link
                     href={item.kind === "snippet" ? `/snippets/${item.id}` : `/blogs/${(item as any).slug || item.id}`}
-                    className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-high text-xs font-bold text-[#C0C1FF] border-subtle hover:bg-surface-bright transition-all active:scale-95"
+                    className="ml-auto beam-button flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#eef1ff] transition-all active:scale-95"
                   >
                     <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    View
+                    
                   </Link>
                 </div>
               </article>
@@ -243,7 +236,7 @@ export default async function DashboardPage() {
         {/* Right Column: Sidebar */}
         <div className="col-span-12 lg:col-span-4 space-y-8">
           {/* Quick Snippet Box */}
-          <section className="bg-surface-container-low p-6 rounded-xl border-subtle">
+          <section className="bg-surface-container-low p-6 rounded-xl border-subtle dashboard-card dashboard-fade-up dashboard-delay-1">
             <h3 className="text-xs uppercase tracking-widest font-bold text-on-surface-variant mb-4">
               Quick Snippet
             </h3>
@@ -258,28 +251,28 @@ export default async function DashboardPage() {
               <div className="flex gap-2">
                 <Link
                   href="/snippets/new"
-                  className="p-1.5 rounded bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors"
+                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-colors"
                 >
                   <span className="material-symbols-outlined text-sm">attach_file</span>
                 </Link>
                 <Link
                   href="/snippets/new"
-                  className="p-1.5 rounded bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors"
+                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-colors"
                 >
                   <span className="material-symbols-outlined text-sm">terminal</span>
                 </Link>
               </div>
               <Link
                 href="/snippets/new"
-                className="gradient-button px-4 py-2 rounded-lg text-black text-[10px] font-extrabold uppercase tracking-widest active:scale-95 transition-all"
+                className="beam-button px-4 py-2 rounded-lg text-white text-[10px] font-extrabold uppercase tracking-widest active:scale-95 transition-all"
               >
-                Initialize
+                <span className="relative z-10 text-white">Initialize</span>
               </Link>
             </div>
           </section>
 
           {/* Your Recent Snippets */}
-          <section className="bg-surface-container-low p-6 rounded-xl border-subtle">
+          <section className="bg-surface-container-low p-6 rounded-xl border-subtle dashboard-card dashboard-fade-up dashboard-delay-2">
             <h3 className="text-xs uppercase tracking-widest font-bold text-on-surface-variant mb-6">
               Recent Snippets
             </h3>
@@ -296,7 +289,7 @@ export default async function DashboardPage() {
                     <div className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#C0C1FF] text-lg mt-0.5">code</span>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-white group-hover:text-[#C0C1FF] transition-colors leading-tight truncate">
+                        <h4 className="text-sm font-bold text-[#eef1ff] group-hover:text-[#C0C1FF] transition-colors leading-tight truncate">
                           {snippet.title}
                         </h4>
                         <p className="text-[11px] text-on-surface-variant mt-1 font-mono uppercase">
@@ -310,32 +303,32 @@ export default async function DashboardPage() {
             )}
             <Link
               href="/my-snippets"
-              className="block mt-4 text-xs font-medium text-[#C0C1FF] hover:underline"
+              className="block mt-4 text-xs font-medium text-[#C0C1FF] hover:text-[#eef1ff] hover:underline"
             >
-              View All Snippets
+               All Snippets
             </Link>
           </section>
 
           {/* Popular Tags */}
-          <section className="bg-surface-container-low p-6 rounded-xl border-subtle">
+          <section className="bg-surface-container-low p-6 rounded-xl border-subtle dashboard-card dashboard-fade-up dashboard-delay-3">
             <h3 className="text-xs uppercase tracking-widest font-bold text-on-surface-variant mb-6">
               Popular Tags
             </h3>
             <div className="flex flex-wrap gap-2">
               {popularTags.length === 0 ? (
                 <>
-                  <Link href="/tags/typescript" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all">#typescript</Link>
-                  <Link href="/tags/rust" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all">#rust</Link>
-                  <Link href="/tags/python" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all">#python</Link>
-                  <Link href="/tags/go" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all">#go</Link>
-                  <Link href="/tags/react" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all">#react</Link>
+                  <Link href="/tags/typescript" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all">#typescript</Link>
+                  <Link href="/tags/rust" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all">#rust</Link>
+                  <Link href="/tags/python" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all">#python</Link>
+                  <Link href="/tags/go" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all">#go</Link>
+                  <Link href="/tags/react" className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all">#react</Link>
                 </>
               ) : (
                 popularTags.map((tag) => (
                   <Link
                     key={tag.language}
                     href={`/tags/${tag.language.toLowerCase()}`}
-                    className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#C7C4D7] hover:bg-[#C0C1FF] hover:text-black transition-all"
+                    className="px-3 py-1.5 bg-surface-container-highest rounded-full text-[11px] font-mono text-[#d7dcff] hover:bg-[#C0C1FF] hover:text-black transition-all"
                   >
                     #{tag.language.toLowerCase()}
                   </Link>

@@ -2,71 +2,63 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import Image from "next/image"
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
-  { name: "My Snippets", href: "/my-snippets", icon: "code" },
-  { name: "My Blogs", href: "/my-blogs", icon: "article" },
-  { name: "Community Feed", href: "/feed", icon: "group" },
+  { name: "Dash", href: "/dashboard", icon: "grid_view" },
+  { name: "Snips", href: "/my-snippets", icon: "code" },
+  { name: "Blogs", href: "/my-blogs", icon: "description" },
+  { name: "Feed", href: "/feed", icon: "public" },
+  { name: "Marks", href: "/bookmarks", icon: "bookmark" },
+  { name: "Cols", href: "/collections", icon: "folder" },
 ]
 
 export function DashboardNav() {
   const pathname = usePathname()
 
   return (
-    <>
-      <div className="flex items-center gap-3 mb-10 px-2">
-        <Image
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWOQbf2fVnBsky36ykjRC2bjLPSxndai9M-nJmk4Dd-veLkXVgc-gfwbM20vaZHPiHM--97P1r6zD7-RoE21quwQF2dwKjQuhBhcVcZ5EqODJkj5sZ__PvfvwIEgGN8HWyN_5qCD8Ar5vAqTID1cZrX-oMwRXSnL4xsNH99CAKXDBrQ4cX6EW2SyvNfEQQ_V_EwGNRcqS5wKxhCkDnD75M_hRgyUjT3E1V1S5AGBrKPJ1KQoHd0ik5qUfGIhEhNhUIxTvCLkIG8c8"
-          alt="Snipster Logo"
-          width={32}
-          height={32}
-          className="w-8 h-8 rounded-lg"
-        />
-        <div>
-          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Snipster</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant/60 font-medium">Developer Workspace</p>
+    <div className="h-full flex flex-col items-center w-full">
+      <div className="mb-12 flex flex-col items-center">
+        <div className="w-8 h-8 bg-white flex items-center justify-center rounded-sm mb-2">
+          <span className="text-black font-black text-xs">S</span>
         </div>
+        <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-600 font-bold">Tier 1</p>
       </div>
 
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 w-full flex flex-col items-center gap-4">
         {navItems.map((item) => {
-          const isActive = pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href))
+          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
 
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-headline text-sm transition-all active:scale-95 ${
+              title={item.name}
+              aria-label={item.name}
+              className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all group ${
                 isActive
-                  ? "text-[#C0C1FF] font-bold bg-surface-container-high"
-                  : "text-[#C7C4D7] font-medium hover:bg-[#2A2A2A]"
+                  ? "text-white bg-white/4"
+                  : "text-neutral-500 hover:text-white hover:bg-white/2"
               }`}
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>
+              {isActive && <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />}
+              <span className="material-symbols-outlined text-[22px] leading-none" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>
                 {item.icon}
               </span>
-              {item.name}
+              <span className={`absolute -bottom-3 text-[9px] uppercase tracking-tight transition-opacity ${isActive ? "font-bold opacity-100" : "font-medium opacity-0 group-hover:opacity-80"}`}>
+                {item.name}
+              </span>
             </Link>
           )
         })}
       </nav>
 
-      <div className="mt-auto">
-        <Link
-          href="/settings"
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-headline text-sm transition-colors ${
-            pathname === "/settings"
-              ? "text-[#C0C1FF] font-bold bg-surface-container-high"
-              : "text-[#C7C4D7] font-medium hover:bg-[#2A2A2A]"
-          }`}
-        >
-          <span className="material-symbols-outlined">settings</span>
-          Settings
-        </Link>
+      <div className="mt-auto flex flex-col items-center pb-2 w-full">
+        <div className="flex flex-col items-center space-y-5">
+          <Link href="/profile" className="text-neutral-500 hover:text-white transition-colors" aria-label="Profile" title="Profile">
+            <span className="material-symbols-outlined text-[20px] leading-none">person</span>
+          </Link>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
