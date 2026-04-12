@@ -115,7 +115,7 @@ export default async function DashboardPage() {
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-1">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-1 transition-transform duration-300 hover:-translate-y-0.5">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Snippets
           </p>
@@ -125,7 +125,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-2">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-2 transition-transform duration-300 hover:-translate-y-0.5">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Views
           </p>
@@ -137,7 +137,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-3">
+        <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-3 transition-transform duration-300 hover:-translate-y-0.5">
           <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">
             Total Saves
           </p>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <div className="flex items-center justify-between mb-2 dashboard-fade-up dashboard-delay-1">
             <h3 className="text-xl font-headline font-bold text-[#eef1ff]">Community Spotlight</h3>
-            <Link href="/feed" className="text-xs font-medium text-[#C0C1FF] hover:underline">
+            <Link href="/feed" className="text-xs font-medium text-[#C0C1FF] hover:underline transition-transform duration-200 hover:translate-x-0.5">
               View All Activity
             </Link>
           </div>
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
                   {item.author.image ? (
                     <img
                       alt={item.author.name || "Dev Avatar"}
-                      className="w-10 h-10 rounded-full grayscale hover:grayscale-0 transition-all cursor-pointer"
+                      className="w-10 h-10 rounded-full transition-all cursor-pointer"
                       src={item.author.image}
                     />
                   ) : (
@@ -222,9 +222,9 @@ export default async function DashboardPage() {
                   </Link>
                   <Link
                     href={item.kind === "snippet" ? `/snippets/${item.id}` : `/blogs/${(item as any).slug || item.id}`}
-                    className="ml-auto beam-button flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#eef1ff] transition-all active:scale-95"
+                    className="ml-auto beam-button group flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#eef1ff] transition-all active:scale-95"
                   >
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    <span className="material-symbols-outlined text-sm transition-transform duration-200 group-hover:translate-x-0.5">arrow_forward</span>
                     
                   </Link>
                 </div>
@@ -251,13 +251,13 @@ export default async function DashboardPage() {
               <div className="flex gap-2">
                 <Link
                   href="/snippets/new"
-                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-colors"
+                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   <span className="material-symbols-outlined text-sm">attach_file</span>
                 </Link>
                 <Link
                   href="/snippets/new"
-                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-colors"
+                  className="p-1.5 rounded bg-surface-container-highest text-[#C0C1FF] hover:text-[#eef1ff] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   <span className="material-symbols-outlined text-sm">terminal</span>
                 </Link>
