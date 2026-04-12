@@ -40,7 +40,6 @@ export function DashboardHeader() {
               }}
             />
           </div>
-          <span className="material-symbols-outlined text-[#C7C4D7]">account_circle</span>
         </div>
       </div>
     </header>
