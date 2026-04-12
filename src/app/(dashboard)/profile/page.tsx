@@ -147,24 +147,83 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           }
         }
 
+        @keyframes ambientFloat {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0);
+          }
+          50% {
+            transform: translate3d(0, -10px, 0);
+          }
+        }
+
+        @keyframes cardPopIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px) scale(0.992);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes buttonSheen {
+          from {
+            background-position: 0% 50%;
+          }
+          to {
+            background-position: 200% 50%;
+          }
+        }
+
         .card-rise {
           animation: contentRise 0.45s ease-out both;
+        }
+
+        .card-pop-in {
+          animation: cardPopIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .ambient-float {
+          animation: ambientFloat 8s ease-in-out infinite;
+        }
+
+        .ambient-float-delayed {
+          animation: ambientFloat 9.5s ease-in-out infinite;
+          animation-delay: 0.8s;
+        }
+
+        .button-sheen {
+          background-image: linear-gradient(120deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 65%, rgba(255,255,255,0.08) 100%);
+          background-size: 200% 100%;
+          animation: buttonSheen 3.2s linear infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
           .card-rise {
             animation: none !important;
           }
+
+          .card-pop-in,
+          .button-sheen {
+            animation: none !important;
+          }
+
+          .ambient-float,
+          .ambient-float-delayed {
+            animation: none !important;
+          }
         }
       `}</style>
 
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-28 left-1/2 h-120 w-120 -translate-x-1/2 rounded-full bg-[#c0c1ff]/10 blur-[110px]" />
-        <div className="absolute top-1/3 -left-14 h-80 w-80 rounded-full bg-[#8083ff]/10 blur-[100px]" />
+        <div className="ambient-float absolute -top-28 left-1/2 h-120 w-120 -translate-x-1/2 rounded-full bg-[#c0c1ff]/10 blur-[110px]" />
+        <div className="ambient-float-delayed absolute top-1/3 -left-14 h-80 w-80 rounded-full bg-[#8083ff]/10 blur-[100px]" />
       </div>
 
       <section className="max-w-6xl mx-auto px-6 md:px-10 pt-12 pb-20">
-        <div className="card-rise rounded-2xl border border-white/8 bg-[#0f1012]/90 p-5 md:p-8">
+        <div className="card-rise rounded-2xl border border-white/8 bg-[#0f1012]/90 p-5 md:p-8 transition-all duration-300 hover:border-white/15 hover:shadow-[0_18px_48px_-28px_rgba(156,162,255,0.45)]">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div className="flex items-center gap-5 md:gap-6 min-w-0">
@@ -185,29 +244,29 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               </div>
 
               <div className="flex items-center gap-3">
-                <Link href="/profile/edit" className="px-6 py-2.5 rounded-md bg-white/6 border border-white/10 text-white text-sm font-semibold transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5">
+                <Link href="/profile/edit" className="button-sheen px-6 py-2.5 rounded-md bg-white/6 border border-white/10 text-white text-sm font-semibold transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/20">
                   Edit Profile
                 </Link>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-1 transition-transform duration-300 hover:-translate-y-0.5">
+              <div className="card-pop-in beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-1 transition-transform duration-300 hover:-translate-y-0.5" style={{ animationDelay: "60ms" }}>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">Total Snippets</p>
                 <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{fullUser._count.snippets}</span>
                 <div className="h-1 mt-4 w-8 bg-[#9da5d9]/45" />
               </div>
-              <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-2 transition-transform duration-300 hover:-translate-y-0.5">
+              <div className="card-pop-in beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-2 transition-transform duration-300 hover:-translate-y-0.5" style={{ animationDelay: "110ms" }}>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">Blog Posts</p>
                 <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{fullUser._count.blogs}</span>
                 <div className="h-1 mt-4 w-8 bg-[#c59f74]/45" />
               </div>
-              <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-3 transition-transform duration-300 hover:-translate-y-0.5">
+              <div className="card-pop-in beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up dashboard-delay-3 transition-transform duration-300 hover:-translate-y-0.5" style={{ animationDelay: "160ms" }}>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">Followers</p>
                 <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{formatCompact(fullUser._count.followers)}</span>
                 <div className="h-1 mt-4 w-8 bg-[#9da5d9]/45" />
               </div>
-              <div className="beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up transition-transform duration-300 hover:-translate-y-0.5" style={{ animationDelay: "340ms" }}>
+              <div className="card-pop-in beam-border bg-surface-container-low p-6 rounded-xl dashboard-fade-up transition-transform duration-300 hover:-translate-y-0.5" style={{ animationDelay: "210ms" }}>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-on-surface-variant mb-4 font-bold">Community Karma</p>
                 <span className="text-4xl font-headline font-bold text-[#f3f4ff]">{formatCompact(fullUser._count.following + fullUser._count.followers + fullUser._count.snippets)}</span>
                 <div className="h-1 mt-4 w-8 bg-[#c59f74]/45" />
@@ -217,13 +276,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </div>
 
         <div className="mt-10 border-b border-white/10 flex items-center gap-8 text-sm font-semibold">
-          <Link href="?tab=snippets" className={`pb-3 transition-colors ${tab === "snippets" ? "text-white border-b-2 border-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Snippets</Link>
-          <Link href="?tab=blogs" className={`pb-3 transition-colors ${tab === "blogs" ? "text-white border-b-2 border-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Blogs</Link>
-          <Link href="?tab=activity" className={`pb-3 transition-colors ${tab === "activity" ? "text-white border-b-2 border-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Activity</Link>
-          <Link href="?tab=collections" className={`pb-3 transition-colors ${tab === "collections" ? "text-white border-b-2 border-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Collections</Link>
+          <Link href="?tab=snippets" className={`relative pb-3 transition-all duration-300 hover:-translate-y-0.5 ${tab === "snippets" ? "text-white after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Snippets</Link>
+          <Link href="?tab=blogs" className={`relative pb-3 transition-all duration-300 hover:-translate-y-0.5 ${tab === "blogs" ? "text-white after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Blogs</Link>
+          <Link href="?tab=activity" className={`relative pb-3 transition-all duration-300 hover:-translate-y-0.5 ${tab === "activity" ? "text-white after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Activity</Link>
+          <Link href="?tab=collections" className={`relative pb-3 transition-all duration-300 hover:-translate-y-0.5 ${tab === "collections" ? "text-white after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-[#b6bbff]" : "text-zinc-500 hover:text-zinc-300"}`}>Collections</Link>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 card-rise" style={{ animationDelay: "120ms" }}>
           {tab === "snippets" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">

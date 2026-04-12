@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
-import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
 import { createNotification } from "@/lib/notifications"
+import { getCurrentUser } from "@/lib/auth/current-user"
+import { randomBytes } from "crypto"
 
 interface RouteContext {
   params: Promise<{ slug: string }>
@@ -9,19 +10,19 @@ interface RouteContext {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
+    const user = await getCurrentUser()
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({ where: { clerkId: userId } })
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
     const { slug } = await context.params
+    const isObjectId = /^[a-fA-F0-9]{24}$/.test(slug)
 
-    const blog = await prisma.blog.findUnique({ where: { slug } })
+    const blog = await prisma.blog.findFirst({
+      where: {
+        OR: isObjectId ? [{ slug }, { id: slug }] : [{ slug }],
+      },
+    })
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 })
     }
@@ -34,7 +35,12 @@ export async function POST(request: Request, context: RouteContext) {
       await prisma.like.delete({ where: { id: existingLike.id } })
     } else {
       await prisma.like.create({
-        data: { userId: user.id, blogId: blog.id },
+        data: {
+          userId: user.id,
+          blogId: blog.id,
+          // Keep snippetId non-null to avoid duplicate-key collisions on Mongo nullable unique indexes.
+          snippetId: randomBytes(12).toString("hex"),
+        },
       })
       await createNotification({
         userId: blog.authorId,

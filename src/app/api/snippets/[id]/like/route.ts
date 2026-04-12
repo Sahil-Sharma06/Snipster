@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
-import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@/lib/db/prisma"
 import { createNotification } from "@/lib/notifications"
+import { getCurrentUser } from "@/lib/auth/current-user"
+import { randomBytes } from "crypto"
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -9,14 +10,9 @@ interface RouteContext {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const user = await prisma.user.findUnique({ where: { clerkId: userId } })
+    const user = await getCurrentUser()
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { id: snippetId } = await context.params
@@ -34,7 +30,12 @@ export async function POST(request: Request, context: RouteContext) {
       await prisma.like.delete({ where: { id: existingLike.id } })
     } else {
       await prisma.like.create({
-        data: { userId: user.id, snippetId },
+        data: {
+          userId: user.id,
+          snippetId,
+          // Keep blogId non-null to avoid duplicate-key collisions on Mongo nullable unique indexes.
+          blogId: randomBytes(12).toString("hex"),
+        },
       })
       // Notify snippet author
       await createNotification({
