@@ -5,13 +5,7 @@ export default async function NewBlogPage() {
   await requireUser()
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">New Blog Post</h1>
-        <p className="text-sm text-muted-foreground">
-          Share your knowledge and experiences with the community
-        </p>
-      </div>
+    <div className="w-full max-w-375 mx-auto -mt-8 md:-mt-10">
       <CreateBlogForm />
     </div>
   )

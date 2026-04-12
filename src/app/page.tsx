@@ -17,10 +17,6 @@ export default async function Home() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-        
         .hero-gradient-custom {
             background: radial-gradient(circle at 50% 50%, rgba(192, 193, 255, 0.08) 0%, rgba(10, 10, 10, 0) 70%);
         }
@@ -33,22 +29,20 @@ export default async function Home() {
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        
-        /* Font Family Variables mappings as expected by classNames */
-        .font-headline { font-family: 'Satoshi', 'Inter', sans-serif; }
-        .font-body { font-family: 'Inter', sans-serif; }
-        .font-label { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-manrope { font-family: 'Satoshi', 'Inter', sans-serif; }
       `}} />
       <div className="bg-[#0a0a0a] text-[#e5e2e1] font-body selection:bg-primary selection:text-on-primary min-h-screen">
         {/* TopNavBar */}
         <nav className="absolute top-0 w-full z-50 border-b border-white/5 bg-[#0a0a0a]/30 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-6">
             <span className="text-xl font-extrabold tracking-tighter text-white font-headline">Snipster</span>
-            <Link href="/sign-up" className="font-manrope text-sm font-medium tracking-tight text-[#C0C1FF] hover:bg-white/5 px-4 py-2 transition-all rounded-md">
-              Sign up
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/sign-in" className="font-manrope text-sm font-medium tracking-tight text-white/85 hover:text-white hover:bg-white/5 px-4 py-2 transition-all rounded-md">
+                Log in
+              </Link>
+              <Link href="/sign-up" className="font-manrope text-sm font-medium tracking-tight text-[#C0C1FF] hover:bg-white/5 px-4 py-2 transition-all rounded-md">
+                Sign up
+              </Link>
+            </div>
           </div>
         </nav>
 
@@ -272,11 +266,11 @@ export default async function Home() {
                   />
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-surface-container-highest overflow-hidden">
-                      <img className="w-full h-full object-cover object-top" data-alt="Portrait of a professional software engineer with a thoughtful expression in a modern, softly lit tech office environment" src="https://drive.google.com/thumbnail?id=1hJU5KkFsVJVyi5KLArIL-042wqnUKPnA&sz=w200" alt="Sahil Sharma" />
+                      <img className="w-full h-full object-cover object-top" src="https://github.com/Sahil-Sharma06.png" alt="Sahil Sharma" />
                     </div>
                     <div>
                       <h5 className="text-white font-bold text-sm">Sahil Sharma</h5>
-                      <p className="text-on-surface-variant text-[10px] uppercase tracking-wider">Lead Developer</p>
+                      <p className="text-on-surface-variant text-[10px] uppercase tracking-wider">Developer</p>
                     </div>
                   </div>
                 </div>
@@ -294,10 +288,15 @@ export default async function Home() {
               <p className="text-on-surface-variant mb-12 max-w-xl mx-auto text-lg">
                   The architect is ready for your first commit. Secure your handle today and start building the future of knowledge.
               </p>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                <Link href="/sign-up" className="beam-button px-12 py-5 rounded-md font-bold text-sm tracking-widest uppercase hover:scale-[1.05] transition-transform">
-                  <span>Initialize My Account</span>
-                </Link>
+              <div className="flex flex-col items-center gap-5">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                  <Link href="/sign-up" className="beam-button px-12 py-5 rounded-md font-bold text-sm tracking-widest uppercase hover:scale-[1.05] transition-transform">
+                    <span>Initialize My Account</span>
+                  </Link>
+                  <Link href="/sign-in" className="px-10 py-5 rounded-md font-bold text-sm tracking-widest uppercase border border-white/15 text-white hover:border-white/35 hover:bg-white/5 transition-colors">
+                    <span>Log In</span>
+                  </Link>
+                </div>
                 <span className="text-on-surface-variant text-xs font-mono">Free forever for individuals.</span>
               </div>
             </ScrollReveal>

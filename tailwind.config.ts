@@ -65,10 +65,11 @@ const config: Config = {
         full: "0.75rem",
       },
       fontFamily: {
-        headline: ["Manrope", "sans-serif"],
+        headline: ["Satoshi", "Inter", "sans-serif"],
         body: ["Inter", "sans-serif"],
         label: ["Inter", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
+        manrope: ["Satoshi", "Inter", "sans-serif"],
       },
     },
   },

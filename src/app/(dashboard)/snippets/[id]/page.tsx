@@ -116,17 +116,6 @@ export default async function SnippetPage({ params }: SnippetPageProps) {
 
   return (
     <div className="font-body antialiased -mt-8 md:-mt-10 bg-[#0a0a0a] text-[#e5e2e1]">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
-
-        .font-headline { font-family: 'Satoshi', 'Inter', sans-serif; }
-        .font-body { font-family: 'Inter', sans-serif; }
-        .font-label { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-manrope { font-family: 'Satoshi', 'Inter', sans-serif; }
-      ` }} />
-
       <ViewTracker endpoint={`/api/snippets/${snippet.id}/view`} />
 
       <div className="relative pointer-events-none inset-0 -z-10">

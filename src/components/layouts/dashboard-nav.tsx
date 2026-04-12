@@ -18,10 +18,15 @@ export function DashboardNav() {
   return (
     <div className="h-full flex flex-col items-center w-full">
       <div className="mb-12 flex flex-col items-center">
-        <div className="w-8 h-8 bg-white flex items-center justify-center rounded-sm mb-2">
-          <span className="text-black font-black text-xs">S</span>
+        <div className="beam-button rounded-md p-0.5 mb-2">
+          <div className="w-9 h-9 rounded-lg overflow-hidden bg-black">
+            <img
+              src="/snipster-logo.png"
+              alt="Snipster logo"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
-        <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-600 font-bold">Tier 1</p>
       </div>
 
       <nav className="flex-1 w-full flex flex-col items-center gap-4">
