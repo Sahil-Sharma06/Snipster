@@ -9,9 +9,10 @@ interface ImageUploadProps {
   value: string
   onChange: (url: string) => void
   disabled?: boolean
+  iconOnlyRemove?: boolean
 }
 
-export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, disabled, iconOnlyRemove = false }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -70,11 +71,13 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             type="button"
             variant="destructive"
             size="sm"
-            className="absolute top-2 right-2"
+            className={iconOnlyRemove ? "absolute top-2 right-2 h-8 w-8 p-0" : "absolute top-2 right-2"}
             onClick={handleRemove}
+            aria-label="Remove image"
+            title="Remove image"
           >
-            <X className="h-4 w-4 mr-1" />
-            Remove
+            <X className="h-4 w-4" />
+            {!iconOnlyRemove && <span className="ml-1">Remove</span>}
           </Button>
         )}
       </div>

@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/current-user"
 import { z } from "zod"
 
 const updateProfileSchema = z.object({
+  image: z.string().url("Invalid image URL").or(z.literal("")).optional(),
   name: z.string().min(1, "Name is required").max(60).optional(),
   username: z
     .string()
@@ -14,7 +15,7 @@ const updateProfileSchema = z.object({
       "Username can only contain letters, numbers, underscores and hyphens"
     )
     .optional(),
-  bio: z.string().max(200, "Bio must be 200 characters or less").optional(),
+  bio: z.string().max(250, "Bio must be 250 characters or less").optional(),
   websiteUrl: z.string().url("Invalid URL").or(z.literal("")).optional(),
   githubUrl: z.string().url("Invalid URL").or(z.literal("")).optional(),
   twitterUrl: z.string().url("Invalid URL").or(z.literal("")).optional(),
@@ -55,6 +56,7 @@ export async function PATCH(request: Request) {
     const updated = await prisma.user.update({
       where: { id: user.id },
       data: {
+        ...(data.image !== undefined && { image: data.image || null }),
         ...(data.name !== undefined && { name: data.name }),
         ...(data.username !== undefined && { username: data.username }),
         ...(data.bio !== undefined && { bio: data.bio || null }),
