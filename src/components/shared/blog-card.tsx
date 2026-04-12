@@ -55,25 +55,29 @@ export function BlogCard({ blog }: BlogCardProps) {
       onClick={() => router.push(`/blogs/${blog.slug}`)}
       className="card-shimmer group h-full flex flex-col overflow-hidden border-border/60 transition-all duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-lg cursor-pointer"
     >
+      <div className="h-0.5 w-full shrink-0 bg-[#5b8bff]" />
+
       {/* Cover */}
       {blog.coverImage ? (
-        <div className="h-40 w-full overflow-hidden bg-muted shrink-0">
+        <div className="relative h-30 w-full overflow-hidden bg-[#0d1117] shrink-0">
           <Image
             src={blog.coverImage}
             alt={blog.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover"
           />
+          <div className="absolute inset-0 bg-linear-to-t from-black/55 to-transparent" />
+          <span className="absolute top-2.5 right-3 text-[10px] font-medium text-white/55">Article</span>
         </div>
       ) : (
-        <div className={`h-40 w-full bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 relative overflow-hidden`}>
+        <div className={`h-30 w-full bg-linear-to-br ${gradient} flex items-center justify-center shrink-0 relative overflow-hidden`}>
           <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-white/5" />
           <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-white/5" />
-          <span className="text-5xl font-black text-foreground/10 select-none z-10">
+          <span className="text-4xl font-black text-foreground/10 select-none z-10">
             {blog.title.charAt(0).toUpperCase()}
           </span>
-          <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-widest text-violet-500 bg-violet-500/10 border border-violet-500/20 rounded-full px-2 py-0.5">
+          <span className="absolute top-2.5 right-3 text-[10px] font-medium text-white/55">
             Blog
           </span>
         </div>
